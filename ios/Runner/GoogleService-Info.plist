@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>839925013952-elc5gjet3sbhj9pqbu9oasu9thb6febq.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.839925013952-elc5gjet3sbhj9pqbu9oasu9thb6febq</string>
+	<key>API_KEY</key>
+	<string>AIzaSyB9PICPPCcGvAqGLn_O0Nt86K5T7gODfsw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>839925013952</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.MinhaContabilidadeApp.app</string>
+	<key>PROJECT_ID</key>
+	<string>minhacontabilidade-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>minhacontabilidade-app.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:839925013952:ios:2c156cd7afe285f0363c25</string>
+</dict>
+</plist>
