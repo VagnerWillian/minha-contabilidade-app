@@ -1,17 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../../../core.dart';
 import '../../domain/repositories/repositories.dart';
 
 class ApiAuthModalRepository implements AuthModalRepository {
-
-  final NetworkServiceInterface _client;
-  final RemoteConfigServiceInterface _remoteConfigService;
-  ApiAuthModalRepository(this._client, this._remoteConfigService);
+  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   @override
-  Future<UserEntity> getUserData() async{
+  Future<UserEntity> getUserData(String uid) async{
     try {
-      var response = await _client.get(path: '');
-      return UserProfile.fromJson(response.data['result']);
+    DocumentSnapshot docSnapshot = await _firebaseFirestore.collection('usuarios').doc(uid).get();
+    return UserProfile.fromJson((docSnapshot.data() as Map<String, dynamic>));
     } on FailureNetwork catch (_) {
       rethrow;
     } catch (err, stack) {

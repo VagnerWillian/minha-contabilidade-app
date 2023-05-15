@@ -91,7 +91,7 @@ class GetConnectNetwork implements NetworkAdapter {
     _getConnect.httpClient.addRequestModifier<dynamic>((request) {
       if (_authUserController.loggedCredentials != null) {
         request.headers.addAll(
-          {'Authorization': 'Bearer ${_authUserController.loggedCredentials!.token}'},
+          {'Authorization': 'Bearer ${_authUserController.loggedCredentials!.uid}'},
         );
       }
       return request;

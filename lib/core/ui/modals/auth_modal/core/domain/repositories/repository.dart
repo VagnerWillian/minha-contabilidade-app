@@ -1,5 +1,5 @@
 import '../../../../../../core.dart';
 
 abstract class AuthModalRepository{
-  Future<UserEntity> getUserData();
+  Future<UserEntity> getUserData(String uid);
 }

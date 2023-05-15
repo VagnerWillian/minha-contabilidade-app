@@ -14,24 +14,18 @@ class AuthModalController extends GetxController with MessagesMixin {
   final LoginWithEmailAndPassUseCaseInterface _loginWithEmailAndPassUseCase;
   final LoginWithPhoneAndPassUseCaseInterface _loginWithPhoneAndPassUseCase;
   final SendEmailConfirmationUseCaseInterface _sendEmailConfirmationUseCase;
-  final GetDocumentsLGPDUseCaseInterface _getDocumentsLGPDUseCase;
-  final SaveDocumentsLGPDUseCaseInterface _saveDocumentsLGPDUseCase;
   final SignOutUseCaseInterface _signOutUseCase;
   final GetUserDataUseCaseInterface _getUserDataUseCase;
   final ConfigLocalServiceInterface _configLocalService;
-  final RemoteConfigServiceInterface _remoteConfigService;
   final LocalAuthServiceInterface _localAuthService;
 
   AuthModalController(
     this._loginWithEmailAndPassUseCase,
     this._loginWithPhoneAndPassUseCase,
     this._sendEmailConfirmationUseCase,
-    this._getDocumentsLGPDUseCase,
-    this._saveDocumentsLGPDUseCase,
     this._signOutUseCase,
     this._getUserDataUseCase,
     this._configLocalService,
-    this._remoteConfigService,
     this._localAuthService,
   );
 
@@ -64,20 +58,14 @@ class AuthModalController extends GetxController with MessagesMixin {
   Future<void> login({bool withBiometrics = false}) async {
     loading(true);
     var authCredentials = await _getCredentials();
-    if (authCredentials.token.isNotEmpty) {
+    if (authCredentials.uid.isNotEmpty) {
       _userAuthController.setLoggedCredentials(authCredentials);
       if (authCredentials.isVerified) {
-        bool accepted = await _getTermsAndDocuments();
-        if (accepted) {
           bool confirmBiometric = await _confirmBiometric(
             rememberDataFields.value,
-            accepted,
             withBiometrics,
           );
-          if (confirmBiometric) completeLogin(useBiometry: withBiometrics, accepted: accepted);
-        } else {
-          step(AuthStep.documents);
-        }
+          if (confirmBiometric) completeLogin(useBiometry: withBiometrics);
       } else {
         step(AuthStep.verify);
       }
@@ -93,16 +81,16 @@ class AuthModalController extends GetxController with MessagesMixin {
     }
   }
 
-  Future<void> completeLogin({bool useBiometry = false, bool accepted = true}) async {
+  Future<void> completeLogin({bool useBiometry = false}) async {
     step(AuthStep.login);
     await _saveRememberLogin(useBiometry: useBiometry);
-    await _saveSession(_userAuthController.loggedCredentials!.token);
-    await _getUserData();
+    await _saveSession(_userAuthController.loggedCredentials!.uid);
+    await _getUserData(_userAuthController.loggedCredentials!.uid);
   }
 
-  Future<void> _getUserData() async {
+  Future<void> _getUserData(String uid) async {
     try {
-      UserEntity user = await _getUserDataUseCase();
+      UserEntity user = await _getUserDataUseCase(uid);
       _userAuthController.setLoggedUser(user);
       openMain();
     } on Failure catch (err) {
@@ -110,9 +98,8 @@ class AuthModalController extends GetxController with MessagesMixin {
     }
   }
 
-  Future<bool> _confirmBiometric(bool remember, bool accepted, bool useBiometrics) async {
-    if (accepted &&
-        !useBiometrics &&
+  Future<bool> _confirmBiometric(bool remember, bool useBiometrics) async {
+    if (!useBiometrics &&
         !kIsWeb) {
       bool hasBiometrics = await _localAuthService.hasBiometrics();
       if (hasBiometrics) step(AuthStep.biometrics);
@@ -147,17 +134,6 @@ class AuthModalController extends GetxController with MessagesMixin {
     }
   }
 
-  Future<bool> acceptDocuments() async {
-    try {
-      await _saveDocumentsLGPDUseCase();
-      await login();
-      return true;
-    } on Failure catch (err) {
-      _defineError(err);
-      return false;
-    }
-  }
-
   Future<AuthCredentialsEntity> _getCredentials() async {
     late AuthCredentialsEntity credentials;
     if (emailOrPhoneField.value.isAEmail) {
@@ -168,23 +144,6 @@ class AuthModalController extends GetxController with MessagesMixin {
     return credentials;
   }
 
-  Future<bool> _getTermsAndDocuments() async {
-    try {
-      docs
-        ..clear()
-        ..addAll(await _getDocumentsLGPDUseCase());
-      if (docs.isNotEmpty) {
-        return false;
-      }
-      return true;
-    } on Failure catch (err) {
-      _defineError(err);
-      docs
-        ..clear()
-        ..add(DocumentLGPD.failure(err));
-      return false;
-    }
-  }
 
   Future<AuthCredentialsEntity> _loginWithPhoneAndPassword() async {
     await _loginWithPhoneAndPassUseCase(
@@ -194,8 +153,8 @@ class AuthModalController extends GetxController with MessagesMixin {
     return AuthCredentials.failure();
   }
 
-  Future<void> _saveSession(String token) async {
-    await _configLocalService.saveTokenData(token);
+  Future<void> _saveSession(String uid) async {
+    await _configLocalService.saveUUIDData(uid);
   }
 
   Future<void> _saveRememberLogin({bool useBiometry = false}) async {

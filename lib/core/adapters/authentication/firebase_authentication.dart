@@ -21,7 +21,9 @@ class FirebaseAuthentication implements AuthenticationAdapter {
       );
       if (userCredential.user != null) {
         String token = await userCredential.user!.getIdToken();
+        String uid = userCredential.user!.uid;
         return AuthCredentials(
+          uid: uid,
           token: token,
           isVerified: userCredential.user!.emailVerified,
         );
@@ -37,7 +39,7 @@ class FirebaseAuthentication implements AuthenticationAdapter {
   @override
   Future<AuthCredentialsEntity> signInWithPhoneAndPassword(String phoneNumber) async {
     await _firebaseAuth.signInWithPhoneNumber(phoneNumber);
-    return AuthCredentials(token: '', isVerified: true);
+    return AuthCredentials(uid: '', token: '', isVerified: true);
   }
 
   @override

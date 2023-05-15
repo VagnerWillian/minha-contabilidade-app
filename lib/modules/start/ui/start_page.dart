@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../controllers/controllers.dart';
 import '../../../core/core.dart';
 import '../controller/controller.dart';
 

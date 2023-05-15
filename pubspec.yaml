@@ -20,23 +20,29 @@ dependencies:
   # Utils
   get: ^4.6.5
   flutter_secure_storage: ^8.0.0
+  cached_network_image: ^3.2.3
 
   # UI
   cupertino_icons: ^1.0.5
   shimmer: ^2.0.0
   icons_plus: ^4.0.0
   unicons: ^2.1.1
+  flutter_zoom_drawer: ^3.0.4+1
+  carousel_slider: ^4.2.1
+  hexcolor: ^3.0.1
+  bubble_tab_indicator: ^0.1.6
 
   # [FIREBASE]
-  firebase_core: ^2.11.0
-  firebase_remote_config: ^4.1.0
-  firebase_auth_web: ^5.4.0
-  firebase_auth: ^4.5.0
+  firebase_core: ^2.12.0
+  firebase_remote_config: ^4.2.0
+  firebase_auth_web: ^5.5.0
+  firebase_auth: ^4.6.0
+  cloud_firestore: ^4.7.0
 
   # [LOCAL AUTH]
   local_auth: ^2.1.6
   local_auth_android: ^1.0.28
-  local_auth_ios: ^1.1.1
+  local_auth_ios: ^1.1.2
 
 dependency_overrides:
   intl: ^0.18.1

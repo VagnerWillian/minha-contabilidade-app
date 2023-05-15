@@ -6,6 +6,9 @@ class UserProfile implements UserEntity {
   late final bool active;
 
   @override
+  late final bool isAdmin;
+
+  @override
   late final String name;
 
   @override
@@ -24,22 +27,29 @@ class UserProfile implements UserEntity {
   late final String email;
 
   @override
+  late final List<dynamic> cards;
+
+  @override
   Map<String, dynamic> get toJson => {
         'uid': uid,
         'nome': name,
         'email': email,
         'ativo': active,
+        'admin': isAdmin,
         'pushToken': pushToken,
         'deviceId': deviceId,
         'foto': photo,
+        'cards': cards,
       };
 
   UserProfile({
     required this.active,
+    required this.isAdmin,
     required this.name,
     required this.photo,
     required this.pushToken,
     required this.uid,
+    required this.cards,
   });
 
   UserProfile.fromJson(Map<String, dynamic> json) {
@@ -47,9 +57,11 @@ class UserProfile implements UserEntity {
     name = json['nome'];
     email = json['email'];
     active = json['ativo'];
+    isAdmin = json['admin'];
     pushToken = json['pushToken'];
     deviceId = json['deviceId'];
-    photo = json['foto'] ?? '';
+    photo = json['foto'];
+    cards = json['cards'];
   }
 
 }

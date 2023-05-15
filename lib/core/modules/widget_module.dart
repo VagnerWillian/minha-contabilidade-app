@@ -6,7 +6,7 @@ abstract class WidgetModule extends GetView {
   const WidgetModule({super.key});
 
   Widget get view;
-  Bindings get bindings;
+  Bindings? get bindings;
 
   @override
   @nonVirtual
@@ -22,6 +22,6 @@ abstract class WidgetModule extends GetView {
   }
 
   Future<void> _createBinding() async {
-    bindings.dependencies();
+    bindings?.dependencies();
   }
 }

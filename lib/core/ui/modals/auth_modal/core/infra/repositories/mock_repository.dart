@@ -3,7 +3,7 @@ import '../../domain/repositories/repositories.dart';
 
 class MockAuthModalRepository implements AuthModalRepository {
   @override
-  Future<UserEntity> getUserData() async {
+  Future<UserEntity> getUserData(String uid) async {
     await Future.delayed(const Duration(seconds: 2));
     return UserProfile(
       active: true,
@@ -11,6 +11,8 @@ class MockAuthModalRepository implements AuthModalRepository {
       photo: '',
       pushToken: '',
       uid: '',
+      cards: ['digio'],
+      isAdmin: true
     );
   }
 }

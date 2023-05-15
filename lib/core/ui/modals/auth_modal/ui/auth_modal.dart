@@ -68,7 +68,7 @@ class _AuthModalState extends State<AuthModalDialog> {
         return true;
       },
       child: SizedBox(
-        height: 385,
+        height: 400,
         width: kIsWeb ? 300 : Get.width,
         child: PageView(
           physics: const NeverScrollableScrollPhysics(),

@@ -16,7 +16,7 @@ class AuthUserController extends GetxController {
   }
 
   void setLoggedUser(UserEntity? user) {
-    if (loggedCredentials != null && loggedCredentials!.token.isNotEmpty) {
+    if (loggedCredentials != null && loggedCredentials!.uid.isNotEmpty) {
       userLogged = user;
     } else {
       throw FailureApp(message: AppConstants.unauthenticatedUser);
@@ -24,7 +24,7 @@ class AuthUserController extends GetxController {
   }
 
   void signOut() {
-    _configLocalService.saveTokenData('');
+    _configLocalService.saveUUIDData('');
     setLoggedUser(null);
     setLoggedCredentials(null);
     Get.toNamed(AppRoutes.startRoute);

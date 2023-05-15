@@ -25,7 +25,7 @@ class SplashBinding extends Bindings {
       //Repositories
       ..lazyPut<SplashRepository>(() {
         if (AppConstants.mockApp) return MockSplashRepository();
-        return ApiSplashRepository(Get.find(), Get.find());
+        return ApiSplashRepository();
       });
   }
 }

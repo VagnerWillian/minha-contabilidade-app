@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
+
 extension StringExtension on String {
   String getPlural(int value) {
     if (value > 1) {
@@ -30,4 +33,6 @@ extension StringExtension on String {
   bool hasMatch(String? value, String pattern) {
     return (value == null) ? false : RegExp(pattern).hasMatch(value);
   }
+
+  Color get convertToColor => HexColor(this);
 }

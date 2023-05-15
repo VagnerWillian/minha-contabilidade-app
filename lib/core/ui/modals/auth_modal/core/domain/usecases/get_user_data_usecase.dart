@@ -1,5 +1,5 @@
 import '../../../../../../core.dart';
 
 abstract class GetUserDataUseCaseInterface{
-  Future<UserEntity> call();
+  Future<UserEntity> call(String uid);
 }

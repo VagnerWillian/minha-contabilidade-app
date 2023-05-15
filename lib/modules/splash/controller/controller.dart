@@ -37,33 +37,34 @@ class SplashController extends GetxController with MessagesMixin {
   }
 
   Future<void> hasFirstAccess() async {
-    bool first = await _localStorageService.getFirstAccess();
-    bool logged = await _getSessionData();
-    if (logged) {
-      bool userOk = await _getUserData();
+    // bool first = await _localStorageService.getFirstAccess();
+    String loggedUUID = await _getSessionData();
+    if (loggedUUID.isNotEmpty) {
+      bool userOk = await _getUserData(loggedUUID);
       if (userOk) Get.offAllNamed(AppRoutes.mainRoute);
     } else {
       Get.offAllNamed(AppRoutes.startRoute);
     }
   }
 
-  Future<bool> _getSessionData() async {
-    var token = await _localStorageService.getTokenData();
-    if (token.isNotEmpty) {
+  Future<String> _getSessionData() async {
+    var uid = await _localStorageService.getUIDData();
+    if (uid.isNotEmpty) {
       _authUserController.setLoggedCredentials(
         AuthCredentials(
-          token: token,
+          uid: uid,
+          token: '',
           isVerified: true,
         ),
       );
-      return true;
+      return uid;
     }
-    return false;
+    return '';
   }
 
-  Future<bool> _getUserData() async {
+  Future<bool> _getUserData(String uid) async {
     try {
-      UserEntity user = await _getUserDataUseCase();
+      UserEntity user = await _getUserDataUseCase(uid);
       _authUserController.setLoggedUser(user);
       return true;
     } on Failure catch (err) {

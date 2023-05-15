@@ -45,14 +45,14 @@ class ConfigLocalService extends GetxService implements ConfigLocalServiceInterf
   }
 
   @override
-  Future<String> getTokenData() async{
+  Future<String> getUIDData() async{
     return await _configLocalStorage.readString(
       key: StorageServiceKeys.token,
     );
   }
 
   @override
-  Future<String> saveTokenData(String value) async{
+  Future<String> saveUUIDData(String value) async{
     return await _configLocalStorage.writeString(
       key: StorageServiceKeys.token,
       value: value,

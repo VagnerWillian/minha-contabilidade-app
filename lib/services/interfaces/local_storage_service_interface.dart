@@ -3,6 +3,6 @@ abstract class ConfigLocalServiceInterface {
   Future<bool> setFirstAccess(bool value);
   Future<String> saveLoginData(String value);
   Future<String> getLoginData();
-  Future<String> saveTokenData(String value);
-  Future<String> getTokenData();
+  Future<String> saveUUIDData(String value);
+  Future<String> getUIDData();
 }

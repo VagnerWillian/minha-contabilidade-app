@@ -13,10 +13,7 @@ class AuthModalBindings implements Bindings {
     await Get.putAsync<AuthModalRepository>(
       () async {
         if (AppConstants.mockApp) return MockAuthModalRepository();
-        return ApiAuthModalRepository(
-          Get.find(),
-          Get.find(),
-        );
+        return ApiAuthModalRepository();
       },
     );
 
@@ -49,9 +46,6 @@ class AuthModalBindings implements Bindings {
 
     await Get.putAsync<AuthModalController>(
       () async => AuthModalController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),

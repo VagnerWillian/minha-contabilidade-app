@@ -1,5 +1,7 @@
 class AppConstants {
-  static bool mockApp = true;
+  static bool mockApp = false;
+
+  static final DateTime todayNow = DateTime.now();
 
   /// [Language App]
   static String defaultLanguageApp = 'pt_BR';

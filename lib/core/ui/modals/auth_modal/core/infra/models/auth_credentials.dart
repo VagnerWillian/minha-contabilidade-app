@@ -3,6 +3,9 @@ import '../../domain/entities/entities.dart';
 
 class AuthCredentials implements AuthCredentialsEntity {
   @override
+  late final String uid;
+
+  @override
   late final String token;
 
   @override
@@ -12,11 +15,13 @@ class AuthCredentials implements AuthCredentialsEntity {
   late final bool isVerified;
 
   AuthCredentials({
+    required this.uid,
     required this.token,
     required this.isVerified
   });
 
   AuthCredentials.failure({String? message}) {
+    uid = '';
     token = '';
     error = message ?? AppConstants.defaultLoginErrorTitle;
   }

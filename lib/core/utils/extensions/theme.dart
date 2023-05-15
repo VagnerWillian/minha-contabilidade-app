@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 
-import '../../core.dart';
-
 class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
-  final Color? staticPrimaryColor;
   final Color? successColor;
   final Color? failureColor;
   final Color? warningColor;
   final Color? grey200;
+  final Color? grey300;
+  final Color? grey400;
   final Color? grey500;
+  final Color? green;
   final Color? white;
   final Color? black;
+  final Color? blackGrey;
 
   CustomThemeColors({
-    required this.staticPrimaryColor,
     required this.successColor,
     required this.failureColor,
     required this.warningColor,
     required this.grey200,
     required this.grey500,
+    required this.grey300,
+    required this.grey400,
+    required this.green,
     required this.white,
     required this.black,
+    required this.blackGrey,
   });
 
   @override
@@ -30,18 +34,24 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     Color? failureColor,
     Color? warningColor,
     Color? grey200,
+    Color? grey300,
+    Color? grey400,
     Color? black,
+    Color? blackGrey,
     Color? white,
   }) {
     return CustomThemeColors(
-      staticPrimaryColor: primaryColor,
       successColor: successColor,
       failureColor: failureColor,
       warningColor: warningColor,
       grey200: grey200,
       grey500: grey500,
+      grey300: grey500,
+      grey400: grey400,
       black: black,
+      blackGrey: blackGrey,
       white: white,
+      green: green,
     );
   }
 
@@ -52,57 +62,17 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
       ) {
     if (other is! CustomThemeColors) return this;
     return CustomThemeColors(
-      staticPrimaryColor: staticPrimaryColor,
       successColor: successColor,
       failureColor: failureColor,
       warningColor: warningColor,
       white: white,
       black: black,
+      blackGrey: blackGrey,
       grey200: grey200,
       grey500: grey500,
-    );
-  }
-}
-
-extension FlavorThemeExtension on ThemeAdapter {
-  ThemeData get getThemeData {
-    return ThemeData(
-      extensions: <CustomThemeColors>[
-        CustomThemeColors(
-          staticPrimaryColor: AppColors.staticPrimary,
-          successColor: AppColors.success,
-          failureColor: AppColors.error,
-          warningColor: AppColors.warning,
-          grey200: AppColors.grey200,
-          grey500: AppColors.grey500,
-          white: AppColors.white,
-          black: AppColors.black,
-        ),
-      ],
-      primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.scaffoldBackground,
-      dialogBackgroundColor: AppColors.dialogBackground,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        secondary: AppColors.accent,
-        tertiary: AppColors.brightness,
-        error: AppColors.error,
-      ),
-      iconTheme: IconThemeData(color: AppColors.primary),
-      textTheme: TextTheme(
-        headlineLarge: AppTextStyles.headlineLarge(color: AppColors.grey500),
-        headlineMedium: AppTextStyles.headlineMedium(color: AppColors.grey500),
-        headlineSmall: AppTextStyles.headlineSmall(color: AppColors.grey500),
-        titleLarge: AppTextStyles.titleLarge(color: AppColors.accent),
-        titleMedium: AppTextStyles.titleMedium(color: AppColors.accent),
-        titleSmall: AppTextStyles.titleSmall(color: AppColors.accent),
-        displayLarge: AppTextStyles.displayLarge(color: AppColors.primary),
-        displayMedium: AppTextStyles.displayMedium(color: AppColors.primary),
-        displaySmall: AppTextStyles.displaySmall(color: AppColors.primary),
-        bodyLarge: AppTextStyles.bodyLarge(color: AppColors.grey500),
-        bodyMedium: AppTextStyles.bodyMedium(color: AppColors.grey500),
-        bodySmall: AppTextStyles.bodySmall(color: AppColors.grey500),
-      ),
+      grey300: grey300,
+      grey400: grey400,
+      green: green,
     );
   }
 }

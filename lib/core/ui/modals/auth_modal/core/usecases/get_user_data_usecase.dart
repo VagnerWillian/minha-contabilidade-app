@@ -7,7 +7,7 @@ class GetUserDataUseCase implements GetUserDataUseCaseInterface{
   GetUserDataUseCase(this._repository);
 
   @override
-  Future<UserEntity> call()async{
-    return await _repository.getUserData();
+  Future<UserEntity> call(String uid)async{
+    return await _repository.getUserData(uid);
   }
 }
