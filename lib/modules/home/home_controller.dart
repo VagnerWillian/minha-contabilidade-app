@@ -84,7 +84,7 @@ class HomeController extends GetxController {
   Future<void> _verifyAndCreateSummaries() async {
     var fund = selectedFund.value!;
 
-    DateTime tmp = DateTime(2023, 2, 2);
+    DateTime tmp = AppConstants.todayNow;
     var closeDate = fund.closeDate.getFirstDate(tmp);
     DateTime? saveDate;
 
