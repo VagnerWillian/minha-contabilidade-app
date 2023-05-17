@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../../core.dart';
+import 'datetime.dart';
 
 extension IntegerExtension on int {
   String format(String pattern) {
@@ -42,10 +43,17 @@ extension IntegerExtension on int {
         } else {
           day = 28;
         }
+      } else if (monthsWithThirtyDays().contains(firstDate.month) && day == 31) {
+        day = 30;
       }
       firstDate = DateTime(firstDate.year, firstDate.month, day);
     }
     return firstDate;
+  }
+
+  List<int> monthsWithThirtyDays() {
+    List<int> months = [4, 6, 9, 11];
+    return months;
   }
 
   bool isLeapYear(int year) {

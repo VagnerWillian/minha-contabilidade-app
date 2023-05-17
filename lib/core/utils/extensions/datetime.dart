@@ -21,7 +21,7 @@ extension DatetTimeExtension on DateTime {
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     day = day > lastDayOfMonth ? lastDayOfMonth : day;
 
-    return DateTime.utc(year, month, day);
+    return DateTime(year, month, day);
   }
 
   DateTime getPreviousMonth() {

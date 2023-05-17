@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
@@ -82,26 +84,18 @@ class HomeController extends GetxController {
   Future<void> _verifyAndCreateSummaries() async {
     var fund = selectedFund.value!;
 
-    DateTime tmp = DateTime(2023, 11, 14);
+    DateTime tmp = DateTime(2023, 2, 2);
     var closeDate = fund.closeDate.getFirstDate(tmp);
+    DateTime? saveDate;
 
-    DateTime? saveDate = closeDate;
-    if (fund.closeInSameMonth && (tmp.isAfter(closeDate) || tmp == closeDate)) {
+    if (tmp.isAfter(closeDate) || tmp == closeDate) {
       closeDate = closeDate.getNextMonth();
       closeDate = fund.closeDate.getFirstDate(closeDate);
       saveDate = closeDate;
-    } else if (fund.closeInSameMonth && tmp.isBefore(closeDate)) {
-      closeDate = fund.closeDate.getFirstDate(closeDate);
-      saveDate = closeDate.getPreviousMonth();
-
-    }
-    if (!fund.closeInSameMonth && (tmp.isAfter(closeDate) || tmp == closeDate)) {
+      if (!fund.closeInSameMonth) saveDate = closeDate.getPreviousMonth();
+    } else {
       saveDate = closeDate;
-      closeDate = closeDate.getNextMonth();
-      closeDate = fund.closeDate.getFirstDate(closeDate);
-    } else if (!fund.closeInSameMonth && tmp.isBefore(closeDate)) {
-      closeDate = fund.closeDate.getFirstDate(closeDate);
-      saveDate = closeDate.getPreviousMonth();
+      if (!fund.closeInSameMonth) saveDate = closeDate.getPreviousMonth();
     }
 
     print(
@@ -111,13 +105,9 @@ class HomeController extends GetxController {
       '=> ID: ${saveDate.month}_${saveDate.year}',
     );
 
-    var expireDate = DateTime(
-      fund.expireDate.getFirstDate(closeDate).year,
-      fund.closeInSameMonth
-          ? fund.expireDate.getFirstDate(closeDate).month - 1
-          : fund.expireDate.getFirstDate(closeDate).month,
-      fund.expireDate.getFirstDate(closeDate).day,
-    );
+    var expireDate = fund.expireDate.getFirstDate(closeDate);
+    if (fund.closeInSameMonth) expireDate = expireDate.getNextMonth();
+
     _summaryTransactions.map((smr) {
       if (saveDate?.month == smr.month &&
           saveDate?.year == smr.year &&
@@ -126,7 +116,7 @@ class HomeController extends GetxController {
       }
     }).toList();
     if (saveDate != null) {
-      await _createSummary(selectedFund.value!, saveDate!, saveDate!, expireDate);
+      await _createSummary(selectedFund.value!, saveDate!, closeDate, expireDate);
     }
   }
 
@@ -141,8 +131,8 @@ class HomeController extends GetxController {
       'id': int.parse('${newDate.month}${newDate.year}'),
       'ano': newDate.year,
       'numeroMes': newDate.month,
-      'fechamento': Timestamp.fromMillisecondsSinceEpoch(closeDate.millisecondsSinceEpoch),
-      'vencimento': Timestamp.fromMillisecondsSinceEpoch(expireDate.millisecondsSinceEpoch),
+      'fechamento': Timestamp.fromDate(closeDate),
+      'vencimento': Timestamp.fromDate(expireDate),
       'idFundo': fund.id,
       'pago': false,
       'total': 0
