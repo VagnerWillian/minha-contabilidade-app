@@ -8,31 +8,19 @@ import '../models/models.dart';
 class FirebaseHomeRepository implements HomeRepository {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  var docCardsRef =
+  final _docCardsRef =
       FirebaseFirestore.instance.collection('fundos').doc('credito').collection('cartoes');
-  var extractsRef = FirebaseFirestore.instance.collection('extrato');
-  var docDebitRef =
-      FirebaseFirestore.instance.collection('fundos').doc('debito').collection('contas');
+  final _extractsRef = FirebaseFirestore.instance.collection('extrato');
 
   @override
   Future<List<FundEntity>> getAllFunds() async {
     try {
       List<FundEntity> list = [];
-      QuerySnapshot queryCreditSnapshot = await docCardsRef.get();
-      QuerySnapshot queryDebitSnapshot = await docDebitRef.get();
+      QuerySnapshot queryCreditSnapshot = await _docCardsRef.get();
       queryCreditSnapshot.docs
-          .map((doc) => list.add(
-                CreditFund.fromJson(
-                  (doc.data() as Map<String, dynamic>),
-                ),
-              ))
-          .toList();
-      queryDebitSnapshot.docs
-          .map((doc) => list.add(
-                DebitFund.fromJson(
-                  (doc.data() as Map<String, dynamic>),
-                ),
-              ))
+          .map((doc) => list.add(Fund.fromJson(
+                (doc.data() as Map<String, dynamic>),
+              )))
           .toList();
       list.sort((a, b) => a.order.compareTo(b.order));
       return list;
@@ -45,14 +33,33 @@ class FirebaseHomeRepository implements HomeRepository {
 
   @override
   Future<List<SummaryTransactionEntity>> getSummaryFromFund(String fundId, String uid) async {
-    QuerySnapshot summariesSnapshot =
-        await extractsRef.doc(uid).collection('resumos').doc('fundos').collection(fundId).get();
+    QuerySnapshot summariesSnapshot = await _extractsRef
+        .doc(uid)
+        .collection('resumos')
+        .doc('fundos')
+        .collection(fundId)
+        .orderBy('ano', descending: false)
+        .get();
     List<SummaryTransactionEntity> summaries = [];
     summariesSnapshot.docs.map((doc) {
-      summaries.add(SummaryTransaction.fromJson(
-        (doc.data() as Map<String, dynamic>),
-      ));
+      summaries.add(SummaryTransaction.fromJson((doc.data() as Map<String, dynamic>)));
     }).toList();
     return summaries;
+  }
+
+  @override
+  Future<void> createSummaryFromFund(
+    String uid,
+    String fundId,
+    String summaryId,
+    Map<String, dynamic> data,
+  ) async {
+    await _extractsRef
+        .doc(uid)
+        .collection('resumos')
+        .doc('fundos')
+        .collection(fundId)
+        .doc(summaryId)
+        .set(data);
   }
 }

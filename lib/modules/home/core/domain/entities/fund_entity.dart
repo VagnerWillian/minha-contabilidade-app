@@ -7,16 +7,8 @@ abstract class FundEntity{
   late String brand;
   late int order;
   late bool active;
-}
-
-abstract class CreditFundEntity extends FundEntity{
+  late bool closeInSameMonth;
   late int closeDate;
   late int expireDate;
   late int limit;
-}
-
-abstract class DebitFundEntity extends FundEntity{
-  late int money;
-  late String agency;
-  late String account;
 }

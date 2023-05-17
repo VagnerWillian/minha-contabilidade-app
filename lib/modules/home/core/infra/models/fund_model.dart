@@ -1,9 +1,12 @@
 import '../../../../../core/core.dart';
 import '../../domain/entities/entities.dart';
 
-class CreditFund implements CreditFundEntity {
+class Fund implements FundEntity {
   @override
   late final bool active;
+
+  @override
+  late final bool closeInSameMonth;
 
   @override
   late final int closeDate;
@@ -35,8 +38,9 @@ class CreditFund implements CreditFundEntity {
   @override
   late final int order;
 
-  CreditFund({
+  Fund({
     required this.active,
+    required this.closeInSameMonth,
     required this.closeDate,
     required this.color,
     required this.expireDate,
@@ -48,10 +52,11 @@ class CreditFund implements CreditFundEntity {
     required this.order,
   });
 
-  CreditFund.fromJson(Map<String, dynamic> json){
+  Fund.fromJson(Map<String, dynamic> json){
     id = json['id'];
     name = json['nome'];
     active = json['ativo'];
+    closeInSameMonth = json['fechaNoMesmoMes'];
     closeDate = json['fecha'];
     expireDate = json['vence'];
     color = json['cor'];

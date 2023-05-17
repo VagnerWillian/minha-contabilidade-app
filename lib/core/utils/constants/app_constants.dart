@@ -44,6 +44,7 @@ class AppConstants {
   /// [Date Patterns]
   static const String dayMonthPattern = 'dd/MM';
   static const String monthYearPattern = 'MM/yyyy';
+  static const String monthUnderlineYearPattern = 'MM_yyyy';
   static const String monthYearCompressedPattern = 'MMM/yy';
   static const String monthYearInFullPattern = 'MMMM yyyy';
   static const String compressedDatePattern = 'dd/MM/yy';

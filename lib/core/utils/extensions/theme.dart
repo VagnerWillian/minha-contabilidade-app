@@ -12,6 +12,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
   final Color? white;
   final Color? black;
   final Color? blackGrey;
+  final Color? blue50;
 
   CustomThemeColors({
     required this.successColor,
@@ -25,6 +26,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     required this.white,
     required this.black,
     required this.blackGrey,
+    required this.blue50,
   });
 
   @override
@@ -36,8 +38,11 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     Color? grey200,
     Color? grey300,
     Color? grey400,
+    Color? grey500,
+    Color? green,
     Color? black,
     Color? blackGrey,
+    Color? blue50,
     Color? white,
   }) {
     return CustomThemeColors(
@@ -46,12 +51,13 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
       warningColor: warningColor,
       grey200: grey200,
       grey500: grey500,
-      grey300: grey500,
+      grey300: grey300,
       grey400: grey400,
       black: black,
       blackGrey: blackGrey,
       white: white,
       green: green,
+      blue50: blue50,
     );
   }
 
@@ -73,6 +79,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
       grey300: grey300,
       grey400: grey400,
       green: green,
+      blue50: blue50,
     );
   }
 }

@@ -43,7 +43,8 @@ class ThemeAdapter {
           white: AppColors.white,
           black: AppColors.black,
           blackGrey: AppColors.blackGrey,
-          green: AppColors.green
+          green: AppColors.green,
+          blue50: AppColors.blue50
         ),
       ],
       primaryColor: AppColors.primary,

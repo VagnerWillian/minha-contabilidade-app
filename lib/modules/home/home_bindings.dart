@@ -14,11 +14,13 @@ class HomeBindings implements Bindings {
             Get.find(),
             Get.find(),
             Get.find(),
+            Get.find(),
           ))
 
       //UseCases
       ..lazyPut(() => GetAllFundsUseCase(Get.find()))
       ..lazyPut(() => GetSummaryFromFund(Get.find()))
+      ..lazyPut(() => CreateSummaryFundUseCase(Get.find()))
 
       //Repositories
       ..lazyPut<HomeRepository>(() => FirebaseHomeRepository());

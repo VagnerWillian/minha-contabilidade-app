@@ -21,6 +21,7 @@ dependencies:
   get: ^4.6.5
   flutter_secure_storage: ^8.0.0
   cached_network_image: ^3.2.3
+  jiffy: ^6.1.0
 
   # UI
   cupertino_icons: ^1.0.5
