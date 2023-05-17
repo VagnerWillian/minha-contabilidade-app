@@ -82,16 +82,15 @@ class HomeController extends GetxController {
   Future<void> _verifyAndCreateSummaries() async {
     var fund = selectedFund.value!;
 
-    DateTime tmp = DateTime(2023, 2, 28);
-    DateTime? saveDate = tmp;
+    DateTime tmp = DateTime(2023, 2, 3);
 
     var closeDate = fund.closeDate.getFirstDate(tmp);
+    DateTime? saveDate = closeDate;
     if (fund.closeInSameMonth && (tmp.isAfter(closeDate) || tmp == closeDate)) {
       closeDate = closeDate.getNextMonth();
       closeDate = fund.closeDate.getFirstDate(closeDate);
       saveDate = closeDate;
     } else if (fund.closeInSameMonth && tmp.isBefore(closeDate)) {
-      saveDate = closeDate;
       closeDate = fund.closeDate.getFirstDate(closeDate);
     }
     if (!fund.closeInSameMonth && (tmp.isAfter(closeDate) || tmp == closeDate)) {
@@ -100,6 +99,7 @@ class HomeController extends GetxController {
       closeDate = fund.closeDate.getFirstDate(closeDate);
     } else if (!fund.closeInSameMonth && tmp.isBefore(closeDate)) {
       closeDate = fund.closeDate.getFirstDate(closeDate);
+      saveDate = closeDate.getPreviousMonth();
     }
 
     print(
