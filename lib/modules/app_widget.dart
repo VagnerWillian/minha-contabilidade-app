@@ -28,7 +28,10 @@ class AppWidget extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      theme: ThemeAdapter(context).getThemeData,
+      theme: ThemeAdapter(context).getThemeData.copyWith(
+        materialTapTargetSize: MaterialTapTargetSize.padded,
+        visualDensity: VisualDensity.standard,
+      ),
       initialRoute: AppRoutes.splashRoute,
       getPages: AppModules.pages,
     );

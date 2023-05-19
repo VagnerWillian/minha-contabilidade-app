@@ -15,7 +15,11 @@ class CustomTextField extends StatefulWidget {
   final String? initialValue;
   final bool obscureText;
   final bool showObscureText;
+  final bool autoValidate;
   final TextInputType? textInputType;
+  final bool enabled;
+  final bool textBold;
+  final Color? textColor;
 
   const CustomTextField({
     super.key,
@@ -28,8 +32,12 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.initialValue,
     this.textInputType,
+    this.textColor,
+    this.textBold = false,
     this.obscureText = false,
+    this.autoValidate = false,
     this.showObscureText = true,
+    this.enabled = true,
   });
 
   @override
@@ -66,8 +74,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    var defaultStyle = ThemeAdapter(context).bodyMedium;
-    var focusColor = ThemeAdapter(context).primaryColor;
+    var defaultStyle = ThemeAdapter(context).bodyMedium.copyWith(
+          color: !widget.enabled
+              ? ThemeAdapter(context).customColors.grey500
+              : widget.textColor ?? ThemeAdapter(context).bodyMedium.color,
+          fontWeight: !widget.textBold ? null : FontWeight.bold,
+        );
+    var focusColor = widget.textColor ?? ThemeAdapter(context).primaryColor;
 
     var errorBorder = OutlineInputBorder(
       borderSide: BorderSide(
@@ -80,10 +93,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         DecoratedBox(
           decoration: BoxDecoration(
-            color: widget.backgroundColor ?? AppColors.grey500,
+            color: widget.backgroundColor ?? ThemeAdapter(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(5),
           ),
           child: TextFormField(
+            enabled: widget.enabled,
             controller: widget.controller,
             onChanged: widget.onChanged,
             inputFormatters: widget.masks,
@@ -91,6 +105,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
             keyboardType: widget.textInputType,
             textAlign: TextAlign.center,
             validator: widget.validator,
+            autovalidateMode:
+                widget.autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
             initialValue: widget.initialValue,
             obscureText: widget.obscureText && !_showObscureText,
             buildCounter: (
@@ -101,9 +117,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
             }) =>
                 const Text(''),
             decoration: InputDecoration(
+              disabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: ThemeAdapter(context).customColors.grey500!,
+                  width: 1,
+                ),
+              ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(
-                  width: 1,
+                  width: 2,
                   color: focusColor,
                 ),
               ),

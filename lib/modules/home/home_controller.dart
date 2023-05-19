@@ -1,8 +1,6 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jiffy/jiffy.dart';
 
 import '../../controllers/auth_user_controller.dart';
 import '../../core/core.dart';
@@ -11,7 +9,7 @@ import 'core/domain/entities/entities.dart';
 import 'core/infra/models/models.dart';
 import 'core/usecases/usecases.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with MessagesMixin {
   final AuthUserController _authUserController;
   final GetAllFundsUseCase _getAllFundsUseCase;
   final GetSummaryFromFund _getAllSummaryFromFundUseCase;
@@ -25,17 +23,23 @@ class HomeController extends GetxController {
   );
 
   final List<SummaryTransactionEntity> _summaryTransactions = [];
+  late final PageController pageController;
 
   final funds = <FundEntity>[].obs;
   final summaryTransactionsFromFund = <SummaryTransactionEntity>[].obs;
   final selectedFund = Rxn<FundEntity>();
+  final loadingFunds = true.obs;
   final loadingSummariesTransactions = true.obs;
   final loadingTransactions = true.obs;
+  final _message = Rxn<MessageModel>();
 
   DateTime todayNow = DateTime.now();
 
-  void init() {
+  @override
+  Future<void> onInit() async {
+    messageListener(_message);
     getAllFunds();
+    super.onInit();
   }
 
   Future<void> changeCard(int cardIndex) async {
@@ -51,17 +55,25 @@ class HomeController extends GetxController {
 
   Future<void> getAllFunds() async {
     print('BUSCANDO FUNDOS...');
+    loadingFunds(true);
     funds
       ..clear()
       ..addAll(await _getAllFundsUseCase(
         _authUserController.userLogged!.isAdmin,
         _authUserController.userLogged!.cards,
       ));
-    funds.map((f) async {
-      _summaryTransactions.clear();
-      await getSummary(f.id);
-      return f;
-    }).toList();
+
+    if (funds.isNotEmpty && funds.first.failure == null) {
+      funds.map((f) async {
+        _summaryTransactions.clear();
+        await getSummary(f.id);
+        return f;
+      }).toList();
+    } else {
+      _defineError(funds.first.failure!);
+    }
+
+    loadingFunds(false);
   }
 
   void _getListSummariesFromFund() {
@@ -138,12 +150,30 @@ class HomeController extends GetxController {
       'total': 0
     };
     SummaryTransactionEntity newSmr = SummaryTransaction.fromJson(data);
-    _summaryTransactions.add(newSmr);
-    await _createSummaryFundUseCase(
-      _authUserController.userLogged!.uid,
-      selectedFund.value!.id,
-      newDate.format(AppConstants.monthUnderlineYearPattern),
-      data,
-    );
+    try {
+      await _createSummaryFundUseCase(
+        _authUserController.userLogged!.uid,
+        selectedFund.value!.id,
+        newDate.format(AppConstants.monthUnderlineYearPattern),
+        data,
+      );
+      _summaryTransactions.add(newSmr);
+    } on Failure catch (err) {
+    _defineError(err);
+    }
+  }
+
+  void _defineError(Failure err) {
+    if (err is FailureNetwork) {
+      _message(MessageModel.network(
+        title: err.error,
+        message: err.message,
+        failureNetwork: err,
+      ));
+    } else if (err is FailureApp) {
+      _message(MessageModel.error(
+        title: err.error,
+      ));
+    }
   }
 }

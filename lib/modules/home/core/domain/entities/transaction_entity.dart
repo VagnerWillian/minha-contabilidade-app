@@ -1,4 +1,7 @@
+import '../../../../../core/core.dart';
+
 abstract class SummaryTransactionEntity{
+  late Failure? failure;
   late int id;
   late String idFund;
   late int year;

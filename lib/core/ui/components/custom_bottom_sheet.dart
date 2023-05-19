@@ -294,7 +294,7 @@ void _baseBottomSheet({
               visible: backMessage.isNotEmpty,
               child: CustomTextButton(
                 label: backMessage,
-                labelStyle: ThemeAdapter(context).bodyMedium,
+                labelStyle: ThemeAdapter(context).bodySmall,
                 onPressed: onBack ?? () {},
               ),
             ),
@@ -360,7 +360,9 @@ Future<void> _baseNetworkBottomSheet({
                       Flexible(
                         child: Text(
                           '${failure.statusCode ?? ''} • $title',
-                          style: ThemeAdapter(context).bodyMedium,
+                          style: ThemeAdapter(context).displayLarge.copyWith(
+                            fontSize: 20
+                          ),
                         ),
                       ),
                     ],
@@ -368,7 +370,7 @@ Future<void> _baseNetworkBottomSheet({
                   const SizedBox(height: 15),
                   Text(
                     message,
-                    style: ThemeAdapter(context).bodyMedium,
+                    style: ThemeAdapter(context).bodySmall,
                   ),
                 ],
               ),

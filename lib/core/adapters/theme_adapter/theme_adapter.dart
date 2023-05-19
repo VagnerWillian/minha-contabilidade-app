@@ -56,7 +56,7 @@ class ThemeAdapter {
         tertiary: AppColors.brightness,
         error: AppColors.error,
       ),
-      iconTheme: IconThemeData(color: AppColors.primary),
+      iconTheme: IconThemeData(color: AppColors.accent),
       textTheme: TextTheme(
         headlineLarge: AppTextStyles.headlineLarge(color: AppColors.grey500),
         headlineMedium: AppTextStyles.headlineMedium(color: AppColors.grey500),

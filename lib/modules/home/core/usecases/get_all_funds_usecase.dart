@@ -1,5 +1,4 @@
-import '../../../../controllers/auth_user_controller.dart';
-import '../domain/entities/entities.dart';
+import '../../../../core/core.dart';
 import '../domain/repositories/repository.dart';
 
 class GetAllFundsUseCase {

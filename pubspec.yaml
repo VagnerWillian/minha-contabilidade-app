@@ -22,6 +22,7 @@ dependencies:
   flutter_secure_storage: ^8.0.0
   cached_network_image: ^3.2.3
   jiffy: ^6.1.0
+  equatable: ^2.0.5
 
   # UI
   cupertino_icons: ^1.0.5
@@ -32,6 +33,9 @@ dependencies:
   carousel_slider: ^4.2.1
   hexcolor: ^3.0.1
   bubble_tab_indicator: ^0.1.6
+  flutter_colorpicker: ^1.0.3
+  flutter_masked_text2: ^0.9.1
+  stacked_card_carousel: ^0.0.4
 
   # [FIREBASE]
   firebase_core: ^2.12.0

@@ -1,13 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:stacked_card_carousel/stacked_card_carousel.dart';
 
-import '../../core/core.dart';
 import 'components/components.dart';
 import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -15,34 +16,54 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final HomeController _controller = Get.find();
+  final int maxAdaptiveScreenWidth = 900;
 
   @override
   void initState() {
-    _controller.init();
+    _controller.pageController = PageController();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    return Builder(builder: (context) {
+      if ((kIsWeb && MediaQuery.of(context).size.width > maxAdaptiveScreenWidth) ||
+          MediaQuery.of(context).size.width > maxAdaptiveScreenWidth) {
+        return _buildPageFromWeb(context);
+      }
+      return _buildPageOthersPlatforms(context);
+    });
+  }
+
+  Widget _buildPageOthersPlatforms(BuildContext context) {
+    const itemWidth = 280.0;
+
     return Obx(() {
       return SingleChildScrollView(
         child: Column(
           children: [
-            CarouselSlider(
-              items: [
-                const MenuSummary(),
-                ..._controller.funds.map((fund) => MenuCard(fund: fund)).toList()
-              ],
-              options: CarouselOptions(
-                onPageChanged: (page, _) => _controller.changeCard(page),
-                height: 400,
-                viewportFraction: 0.70,
-                initialPage: 0,
-                autoPlay: false,
-                enableInfiniteScroll: false,
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: false,
-                scrollDirection: Axis.horizontal,
+            Visibility(
+              visible: _controller.loadingFunds.isFalse,
+              replacement: ShimmerProgress.cardsShimmerH(context),
+              child: CarouselSlider(
+                items: [
+                  MenuSummary(reloadData: _controller.onInit, width: itemWidth),
+                  ..._controller.funds
+                      .map((fund) => MenuCard(fund: fund, width: itemWidth))
+                      .toList(),
+                ],
+                options: CarouselOptions(
+                  onPageChanged: (page, _) => _controller.changeCard(page),
+                  height: 400,
+                  initialPage: 0,
+                  viewportFraction: itemWidth / MediaQuery.of(context).size.width,
+                  autoPlay: false,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
+                  enlargeFactor: 0.3,
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  scrollDirection: Axis.horizontal,
+                ),
               ),
             ),
             Column(
@@ -57,6 +78,54 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
+      );
+    });
+  }
+
+  Widget _buildPageFromWeb(BuildContext context) {
+    const itemWidth = 280.0;
+
+    return Obx(() {
+      return Row(
+        children: [
+          Visibility(
+            visible: _controller.loadingFunds.isFalse,
+            replacement: ShimmerProgress.cardsShimmerV(context),
+            child: SizedBox(
+              width: 500,
+              child: StackedCardCarousel(
+                pageController: _controller.pageController,
+                onPageChanged: _controller.changeCard,
+                type: StackedCardCarouselType.fadeOutStack,
+                initialOffset: 5,
+                spaceBetweenItems: 420,
+                items: _controller.funds.isEmpty
+                    ? [const SizedBox.shrink()]
+                    : [
+                        MenuSummary(
+                          reloadData: _controller.onInit,
+                          width: itemWidth,
+                          height: 400,
+                        ),
+                        ..._controller.funds
+                            .map((fund) => MenuCard(
+                                  fund: fund,
+                                  width: itemWidth,
+                                  height: 400,
+                                ))
+                            .toList(),
+                      ].toList(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Visibility(
+              visible: _controller.selectedFund.value != null &&
+                  _controller.summaryTransactionsFromFund.isNotEmpty,
+              child: const TransactionsList(),
+            ),
+          )
+        ],
       );
     });
   }

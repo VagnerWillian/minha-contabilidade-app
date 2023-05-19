@@ -15,6 +15,7 @@ class AppConstants {
 
   /// [Default Messages]
   static const String defaultSuccessTitle = 'Tudo certo';
+  static const String firebaseErrorTitle = 'Problemas com o banco de dados';
   static const String defaultErrorTitle = 'Ops...';
   static const String defaultWarningTitle = 'Atenção';
   static const String defaultErrorMessage = 'Ocorreu um erro, mas já estamos trabalhando para resolver.';
@@ -23,12 +24,8 @@ class AppConstants {
   static const String remoteConfigErrorMessage = 'Problema na configuração remota';
   static const String dataNotFound = 'Nenhum dado encontrado!';
   static const String errorImageLoad = 'Não foi possível carregar imagem, verifique sua conexão.';
-  static const String termsNotFound = 'Problema ao obter documentos legais';
-  static const String fileNotFound = 'Arquivo não encontrado';
-  static const String noAppToOpenFile = 'Nenhum aplicativo compatível para abrir o arquivo';
-  static const String noPermissionAccessFile = 'Sem autorização para acessar arquivos do dispositivo';
-  static const String downloadError = 'Não foi possível fazer download do arquivo';
   static const String unauthenticatedUser = 'Usuário não autenticado';
+  static const String listFundsEmpty = 'Problema ao carregar fundos..';
 
   /// [Form Validators]
   static const String fieldRequired = 'Campo obrigatório';

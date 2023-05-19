@@ -1,106 +1,158 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 import '../../../core/core.dart';
-import '../core/domain/entities/entities.dart';
 
 class MenuCard extends StatelessWidget {
+  final double width;
+  final double? height;
   final FundEntity fund;
 
   const MenuCard({
     required this.fund,
+    required this.width,
+    this.height,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (fund.failure != null) {
+      return Container(
+        width: width,
+        height: height,
+        margin: const EdgeInsets.only(right: 15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              LineAwesome.exclamation_triangle_solid,
+              size: 100,
+              color: ThemeAdapter(context).error,
+            ),
+            Text(
+              AppConstants.listFundsEmpty,
+              style: ThemeAdapter(context).bodySmall.copyWith(
+                    color: ThemeAdapter(context).error,
+                  ),
+            )
+          ],
+        ),
+      );
+    }
     return Container(
-      width: 250,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            fund.color.convertToColor.withOpacity(0.9),
-            fund.color.convertToColor,
+            fund.color.convertToColor!.withOpacity(0.9),
+            fund.color.convertToColor!,
           ],
         ),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Image.asset(
-              'assets/images/chip.png',
-              width: 45,
-              height: 45,
-            ),
-            Center(
-              child: CachedNetworkImage(
-                imageUrl: fund.logo,
-                width: 100,
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Chip(
-                        backgroundColor: ThemeAdapter(context).customColors.white,
-                        label: Text(
-                          fund.type.toUpperCase(),
-                          style: ThemeAdapter(context).bodySmall.copyWith(
-                            color: ThemeAdapter(context).customColors.black,
-                            letterSpacing: 2,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 8,
+        child: LayoutBuilder(
+            builder: (context, constraint) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraint.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Visibility(
+                        visible: fund.logo.isNotEmpty,
+                        replacement: Text(
+                          'LOGO',
+                          style: ThemeAdapter(context).displaySmall.copyWith(
+                            color: ThemeAdapter(context).customColors.white,
                           ),
                         ),
-                      ),
-                      FittedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'VAGNER W M FERREIRA',
-                              style: ThemeAdapter(context).bodySmall.copyWith(
-                                color: ThemeAdapter(context).customColors.white,
-                                letterSpacing: 2,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 8,
-                              ),
-                            ),
-                            Text(
-                              fund.name.toUpperCase(),
-                              style: ThemeAdapter(context).bodyMedium.copyWith(
-                                color: ThemeAdapter(context).customColors.white,
-                                letterSpacing: 5,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        child: CachedNetworkImage(
+                          imageUrl: fund.logo,
+                          width: 80,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                                child: Chip(
+                                  backgroundColor: ThemeAdapter(context).customColors.white,
+                                  label: Text(
+                                    fund.isCreditString,
+                                    style: ThemeAdapter(context).bodySmall.copyWith(
+                                      color: ThemeAdapter(context).customColors.black,
+                                      letterSpacing: 2,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 8,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'VAGNER W M FERREIRA',
+                                    style: ThemeAdapter(context).bodySmall.copyWith(
+                                      color: ThemeAdapter(context).customColors.white,
+                                      letterSpacing: 2,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 8,
+                                    ),
+                                  ),
+                                  Text(
+                                    fund.name.toUpperCase(),
+                                    style: ThemeAdapter(context).bodyMedium.copyWith(
+                                      color: ThemeAdapter(context).customColors.white,
+                                      letterSpacing: 5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Visibility(
+                            visible: fund.brandUrl.isNotEmpty,
+                            replacement: Text(
+                              'BRAND',
+                              style: ThemeAdapter(context).displaySmall.copyWith(
+                                color: ThemeAdapter(context).customColors.white,
+                              ),
+                            ),
+                            child: CachedNetworkImage(
+                              imageUrl: fund.brandUrl,
+                              width: 80,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: CachedNetworkImage(
-                    imageUrl: fund.brand,
-                    width: 80,
-                  ),
                 ),
-              ],
-            ),
-          ],
+              );
+          }
         ),
       ),
     );

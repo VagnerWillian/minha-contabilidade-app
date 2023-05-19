@@ -24,27 +24,58 @@ class FirebaseHomeRepository implements HomeRepository {
           .toList();
       list.sort((a, b) => a.order.compareTo(b.order));
       return list;
-    } on FailureNetwork catch (_) {
-      rethrow;
+    } on FailureNetwork catch (err) {
+      return [Fund.failure(err)];
+    } on FirebaseException catch (_) {
+      return [
+        Fund.failure(FailureNetwork(
+          error: AppConstants.firebaseErrorTitle,
+          message: 'Não foi possível criar a fatura do mês atual',
+        ))
+      ];
     } catch (err, stack) {
-      throw FailureApp(message: err.toString(), stackTrace: stack);
+      return [
+        Fund.failure(
+          FailureApp(message: err.toString(), stackTrace: stack),
+        )
+      ];
     }
   }
 
   @override
   Future<List<SummaryTransactionEntity>> getSummaryFromFund(String fundId, String uid) async {
-    QuerySnapshot summariesSnapshot = await _extractsRef
-        .doc(uid)
-        .collection('resumos')
-        .doc('fundos')
-        .collection(fundId)
-        .orderBy('ano', descending: false)
-        .get();
-    List<SummaryTransactionEntity> summaries = [];
-    summariesSnapshot.docs.map((doc) {
-      summaries.add(SummaryTransaction.fromJson((doc.data() as Map<String, dynamic>)));
-    }).toList();
-    return summaries;
+    try {
+      QuerySnapshot summariesSnapshot = await _extractsRef
+          .doc(uid)
+          .collection('resumos')
+          .doc('fundos')
+          .collection(fundId)
+          .orderBy('ano', descending: false)
+          .get();
+      List<SummaryTransactionEntity> summaries = [];
+      summariesSnapshot.docs.map((doc) {
+        summaries.add(SummaryTransaction.fromJson((doc.data() as Map<String, dynamic>)));
+      }).toList();
+      return summaries;
+    } on FailureNetwork catch (err) {
+      return [SummaryTransaction.failure(err, fundId)];
+    } on FirebaseException catch (_) {
+      return [
+        SummaryTransaction.failure(
+            FailureNetwork(
+              error: AppConstants.firebaseErrorTitle,
+              message: 'Não foi possível criar a fatura do mês atual',
+            ),
+            fundId)
+      ];
+    } catch (err, stack) {
+      return [
+        SummaryTransaction.failure(
+          FailureApp(message: err.toString(), stackTrace: stack),
+          fundId,
+        )
+      ];
+    }
   }
 
   @override
@@ -54,12 +85,27 @@ class FirebaseHomeRepository implements HomeRepository {
     String summaryId,
     Map<String, dynamic> data,
   ) async {
-    await _extractsRef
-        .doc(uid)
-        .collection('resumos')
-        .doc('fundos')
-        .collection(fundId)
-        .doc(summaryId)
-        .set(data);
+    try {
+      await _extractsRef
+          .doc(uid)
+          .collection('resumos')
+          .doc('fundos')
+          .collection(fundId)
+          .doc(summaryId)
+          .set(data);
+    } on FailureNetwork catch (err) {
+      rethrow;
+    } on FirebaseException catch (e) {
+      throw FailureNetwork(
+        error: AppConstants.firebaseErrorTitle,
+        message: 'Não foi possível criar a fatura do mês atual',
+      );
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
+        error: 'Não foi possível criar a fatura do mês atual',
+        stackTrace: stack,
+      );
+    }
   }
 }

@@ -1,8 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../../core/core.dart';
 import '../../domain/entities/entities.dart';
 
 class SummaryTransaction implements SummaryTransactionEntity {
+
+  @override
+  late final Failure? failure;
+
   @override
   late final int id;
 
@@ -47,5 +52,8 @@ class SummaryTransaction implements SummaryTransactionEntity {
     month = json['numeroMes'];
     expireDate = (json['vencimento'] as Timestamp).toDate();
     closeDate = (json['fechamento'] as Timestamp).toDate();
+    failure = null;
   }
+
+  SummaryTransaction.failure(this.failure, this.idFund);
 }

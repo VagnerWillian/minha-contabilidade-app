@@ -7,7 +7,6 @@ export 'infra/models/models.dart';
 export 'utils/enums/enums.dart';
 export 'utils/extensions/extensions.dart';
 export 'utils/constants/constants.dart';
-export 'config/config.dart';
 export 'ui/ui.dart';
 export 'adapters/adapters.dart';
 export '../services/services.dart';

@@ -8,7 +8,7 @@ class MainModule implements Module {
   List<GetPage> routers = [
     GetPage(
       name: AppRoutes.mainRoute,
-      page: () => const MainPage(),
+      page: () => MainPage(),
     ),
   ];
 }

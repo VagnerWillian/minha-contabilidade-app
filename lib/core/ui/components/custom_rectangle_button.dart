@@ -6,7 +6,7 @@ class CustomRectangleButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Size? size;
   final TextStyle? labelStyle;
-  final Alignment? labelAlign;
+  final Alignment? textAlign;
   final IconButton? suffixIcon;
   final Widget? prefixIcon;
   final Color? background;
@@ -20,7 +20,7 @@ class CustomRectangleButton extends StatelessWidget {
     required this.onPressed,
     this.size,
     this.labelStyle,
-    this.labelAlign,
+    this.textAlign,
     this.suffixIcon,
     this.prefixIcon,
     this.background,
@@ -41,35 +41,42 @@ class CustomRectangleButton extends StatelessWidget {
         disabledForegroundColor: ThemeAdapter(context).customColors.white,
         shadowColor: Colors.transparent,
         textStyle: labelStyle,
-        alignment: labelAlign,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius ?? 5),
           side: borderStyle!,
         ),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment:
-            suffixIcon != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+            suffixIcon != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Visibility(
-                visible: prefixIcon != null,
-                child: prefixIcon ?? const SizedBox(),
-              ),
-              Visibility(
-                visible: label.isNotEmpty,
-                child: Text(
-                  '${prefixIcon != null ? ' ' : ''}$label',
-                  style: labelStyle?.copyWith(fontWeight: FontWeight.bold) ??
-                      ThemeAdapter(context).displayMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: ThemeAdapter(context).customColors.white,
-                          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Visibility(
+                  visible: prefixIcon != null,
+                  child: prefixIcon ?? const SizedBox(),
                 ),
-              )
-            ],
+                Visibility(
+                  visible: label.isNotEmpty,
+                  child: Expanded(
+                    child: Align(
+                      alignment: textAlign ?? Alignment.center,
+                      child: Text(
+                        '${prefixIcon != null ? ' ' : ''}$label',
+                        style: labelStyle?.copyWith(fontWeight: FontWeight.bold) ??
+                            ThemeAdapter(context).displayMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: ThemeAdapter(context).customColors.white,
+                                ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
           Visibility(
             visible: suffixIcon != null,
