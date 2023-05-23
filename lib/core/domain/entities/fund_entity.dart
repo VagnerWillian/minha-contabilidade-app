@@ -25,5 +25,6 @@ abstract class FundEntity{
   String get isCreditString;
   bool get closeInSameMonth;
   Map<String, dynamic> get toJson;
+  void generateId();
 
 }

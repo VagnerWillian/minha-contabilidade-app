@@ -10,4 +10,5 @@ abstract class HomeRepository {
     String summaryId,
     Map<String, dynamic> data,
   );
+  Future<List<TransactionEntity>> getAllTransactions(String uid, String summaryId, String fundId);
 }

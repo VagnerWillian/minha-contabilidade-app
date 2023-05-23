@@ -10,7 +10,7 @@ class FundsModule implements Module {
   List<GetPage> routers = [
     GetPage(
       name: AppRoutes.fundsRoute,
-      page: () => FundsPage(),
+      page: () => const FundsPage(),
       binding: FundsBindings()
     )
   ];

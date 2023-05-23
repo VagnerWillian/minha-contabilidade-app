@@ -38,7 +38,10 @@ extension DatetTimeExtension on DateTime {
     int day = this.day;
     int lastDayOfMonth = DateTime(year, month + 1, 0).day;
     day = day > lastDayOfMonth ? lastDayOfMonth : day;
+    return DateTime(year, month, day);
+  }
 
-    return DateTime.utc(year, month, day);
+  bool isDateBetween(DateTime startDate, DateTime endDate) {
+    return (isAfter(startDate) || this == startDate) && (isBefore(endDate) || this == endDate);
   }
 }

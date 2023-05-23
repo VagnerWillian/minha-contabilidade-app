@@ -2,7 +2,7 @@ import '../../../../../core/core.dart';
 
 abstract class SummaryTransactionEntity{
   late Failure? failure;
-  late int id;
+  late String id;
   late String idFund;
   late int year;
   late int month;
@@ -13,10 +13,13 @@ abstract class SummaryTransactionEntity{
 }
 
 abstract class TransactionEntity{
+  late Failure? failure;
   late String id;
   late String idFund;
-  late String name;
+  late String userName;
+  late String description;
   late String date;
   late bool isPurchase;
-  late int price;
+  late bool approved;
+  late num price;
 }

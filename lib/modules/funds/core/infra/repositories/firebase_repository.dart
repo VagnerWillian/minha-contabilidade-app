@@ -8,16 +8,18 @@ import '../models/models.dart';
 class FirebaseFundsRepository implements FundsRepository {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  final _docCardsRef =
-      FirebaseFirestore.instance.collection('fundos').doc('credito').collection('cartoes');
+  final _docFundsRef =
+      FirebaseFirestore.instance.collection('fundos');
 
   final _docBrandsRef = FirebaseFirestore.instance.collection('bandeiras');
 
+  final _docTransactionsRef = FirebaseFirestore.instance.collection('extratos');
+
   @override
   Future<List<FundEntity>> getAllFunds() async {
-    try {
+    // try {
       List<FundEntity> list = [];
-      QuerySnapshot queryCreditSnapshot = await _docCardsRef.get();
+      QuerySnapshot queryCreditSnapshot = await _docFundsRef.get();
       queryCreditSnapshot.docs
           .map((doc) => list.add(Fund.fromJson(
                 (doc.data() as Map<String, dynamic>),
@@ -25,11 +27,11 @@ class FirebaseFundsRepository implements FundsRepository {
           .toList();
       list.sort((a, b) => b.order.compareTo(a.order));
       return list;
-    } on FailureNetwork catch (_) {
-      rethrow;
-    } catch (err, stack) {
-      throw FailureApp(message: err.toString(), stackTrace: stack);
-    }
+    // } on FailureNetwork catch (_) {
+    //   rethrow;
+    // } catch (err, stack) {
+    //   throw FailureApp(message: err.toString(), stackTrace: stack);
+    // }
   }
 
   @override
@@ -74,18 +76,9 @@ class FirebaseFundsRepository implements FundsRepository {
   }
 
   @override
-  Future<String> createFund(Map<String, dynamic> data) async {
+  Future<void> createFund(Map<String, dynamic> data) async {
     try {
-      String docId = data['id'];
-      if (docId.isEmpty) {
-        DocumentReference newDoc = await _docCardsRef.add(data);
-        docId = newDoc.id;
-        data['id'] = docId;
-        await _docCardsRef.doc(data['id']).set(data);
-      } else {
-        await _docCardsRef.doc(data['id']).set(data);
-      }
-      return docId;
+      await _docFundsRef.doc(data['id']).set(data);
     } on FailureNetwork catch (_) {
       throw FailureNetwork(
         error: AppConstants.firebaseErrorTitle,
@@ -105,7 +98,7 @@ class FirebaseFundsRepository implements FundsRepository {
   @override
   Future<void> deleteFund(String id) async {
     try {
-      await _docCardsRef.doc(id).delete();
+      await _docFundsRef.doc(id).delete();
     } on FailureNetwork catch (_) {
       throw FailureNetwork(
         error: AppConstants.firebaseErrorTitle,

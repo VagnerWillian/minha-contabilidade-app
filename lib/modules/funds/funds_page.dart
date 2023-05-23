@@ -8,7 +8,6 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:stacked_card_carousel/stacked_card_carousel.dart';
 
 import '../../core/core.dart';
-import '../../core/utils/extensions/color.dart';
 import 'components/components.dart';
 import 'core/domain/entities/entities.dart';
 import 'funds_controller.dart';
@@ -27,7 +26,8 @@ class _FundsPageState extends State<FundsPage> {
 
   @override
   void initState() {
-    _controller..pageController = PageController()
+    _controller
+      ..pageController = PageController()
       ..textColorEditingController = TextEditingController(
         text: Color(_controller.selectedColor.value).toHex(leadingHashSign: true),
       )
@@ -141,7 +141,7 @@ class _FundsPageState extends State<FundsPage> {
       return Row(
         children: [
           Visibility(
-            visible:_controller.loadingFunds.isFalse,
+            visible: _controller.loadingFunds.isFalse,
             replacement: ShimmerProgress.cardsShimmerV(context),
             child: SizedBox(
               width: 500,
@@ -151,13 +151,15 @@ class _FundsPageState extends State<FundsPage> {
                 type: StackedCardCarouselType.fadeOutStack,
                 initialOffset: 5,
                 spaceBetweenItems: 420,
-                items: _controller.funds.isEmpty?[const SizedBox.shrink()]: _controller.funds
-                    .map((fund) => MenuCard(
-                          fund: fund,
-                          width: itemWidth,
-                          height: 400,
-                        ))
-                    .toList(),
+                items: _controller.funds.isEmpty
+                    ? [const SizedBox.shrink()]
+                    : _controller.funds
+                        .map((fund) => MenuCard(
+                              fund: fund,
+                              width: itemWidth,
+                              height: 400,
+                            ))
+                        .toList(),
               ),
             ),
           ),

@@ -9,7 +9,7 @@ class FirebaseHomeRepository implements HomeRepository {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   final _docCardsRef =
-      FirebaseFirestore.instance.collection('fundos').doc('credito').collection('cartoes');
+      FirebaseFirestore.instance.collection('fundos');
   final _extractsRef = FirebaseFirestore.instance.collection('extrato');
 
   @override
@@ -56,6 +56,7 @@ class FirebaseHomeRepository implements HomeRepository {
       summariesSnapshot.docs.map((doc) {
         summaries.add(SummaryTransaction.fromJson((doc.data() as Map<String, dynamic>)));
       }).toList();
+      summaries.sort((a,b)=>DateTime(a.year, a.month).compareTo(DateTime(b.year, b.month)));
       return summaries;
     } on FailureNetwork catch (err) {
       return [SummaryTransaction.failure(err, fundId)];
@@ -106,6 +107,59 @@ class FirebaseHomeRepository implements HomeRepository {
         error: 'Não foi possível criar a fatura do mês atual',
         stackTrace: stack,
       );
+    }
+  }
+
+  @override
+  Future<List<TransactionEntity>> getAllTransactions(
+    String uid,
+    String summaryId,
+    String fundId,
+  ) async {
+    try {
+      List<TransactionFund> list = [];
+      QuerySnapshot queryCreditSnapshot = await _extractsRef
+          .doc(uid)
+          .collection('gastos')
+          .doc(summaryId)
+          .collection('compras')
+          .where('idFundo', isEqualTo: fundId)
+          .get();
+      await Future.delayed(Duration(seconds: 3));
+
+      queryCreditSnapshot.docs
+          .map((doc) => list.add(TransactionFund.fromJson(
+                (doc.data() as Map<String, dynamic>),
+              )))
+          .toList();
+      return list;
+    } on FailureNetwork catch (_) {
+      return [
+        TransactionFund.failure(
+          FailureNetwork(
+            error: AppConstants.firebaseErrorTitle,
+            message: 'Não foi possível criar a fatura do mês atual',
+          ),
+        )
+      ];
+    } on FirebaseException catch (_) {
+      return [
+        TransactionFund.failure(
+          FailureNetwork(
+            error: AppConstants.firebaseErrorTitle,
+            message: 'Não foi possível criar a fatura do mês atual',
+          ),
+        )
+      ];
+    } catch (err, stack) {
+      return [
+        TransactionFund.failure(
+          FailureApp(
+            message: err.toString(),
+            stackTrace: stack,
+          ),
+        )
+      ];
     }
   }
 }

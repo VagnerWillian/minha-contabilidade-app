@@ -4,6 +4,7 @@ import 'package:icons_plus/icons_plus.dart';
 
 import '../../../controllers/auth_user_controller.dart';
 import '../../../core/core.dart';
+import '../../home/home_controller.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -41,6 +42,12 @@ class MenuScreen extends StatelessWidget {
                 buildItemMenu(LineAwesome.users_solid, 'Usuarios'),
                 buildItemMenu(LineAwesome.youtube, 'Assinaturas'),
                 const Spacer(),
+                buildItemMenu(
+                  LineAwesome.sign_out_alt_solid,
+                  'Recarregar cards',
+                  color: ThemeAdapter(context).error,
+                  onTap: ()=>Get.find<HomeController>().onInit()
+                ),
                 buildItemMenu(
                   LineAwesome.sign_out_alt_solid,
                   'Sair',

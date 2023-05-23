@@ -1,10 +1,13 @@
+import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jiffy/jiffy.dart';
+import 'dart:async';
 
 import '../../controllers/auth_user_controller.dart';
 import '../../core/core.dart';
-import '../../core/utils/extensions/datetime.dart';
+import 'core/usecases/get_all_transactions_usecase.dart';
 import 'core/domain/entities/entities.dart';
 import 'core/infra/models/models.dart';
 import 'core/usecases/usecases.dart';
@@ -14,19 +17,23 @@ class HomeController extends GetxController with MessagesMixin {
   final GetAllFundsUseCase _getAllFundsUseCase;
   final GetSummaryFromFund _getAllSummaryFromFundUseCase;
   final CreateSummaryFundUseCase _createSummaryFundUseCase;
+  final GetAllTransactionsUseCase _getAllTransactionsUseCase;
 
   HomeController(
     this._authUserController,
     this._getAllFundsUseCase,
     this._getAllSummaryFromFundUseCase,
     this._createSummaryFundUseCase,
+    this._getAllTransactionsUseCase,
   );
 
-  final List<SummaryTransactionEntity> _summaryTransactions = [];
-  late final PageController pageController;
+  final List<SummaryTransactionEntity> _summaries = [];
+  late PageController pageController;
+  TabController? tabController;
 
   final funds = <FundEntity>[].obs;
-  final summaryTransactionsFromFund = <SummaryTransactionEntity>[].obs;
+  final summariesFromFund = <SummaryTransactionEntity>[].obs;
+  final transactions = <TransactionEntity>[].obs;
   final selectedFund = Rxn<FundEntity>();
   final loadingFunds = true.obs;
   final loadingSummariesTransactions = true.obs;
@@ -34,22 +41,34 @@ class HomeController extends GetxController with MessagesMixin {
   final _message = Rxn<MessageModel>();
 
   DateTime todayNow = DateTime.now();
+  int page = 0;
+  CancellationToken? transactionCancellationToken;
+  int get initialIndex => page > summariesFromFund.length - 1 ? summariesFromFund.length - 1 : page;
 
   @override
   Future<void> onInit() async {
+    pageController = PageController();
     messageListener(_message);
-    getAllFunds();
+    await getAllFunds();
+    getAllSummariesFromFunds();
     super.onInit();
+  }
+
+  Future<void> handleTabChange() async {
+    if (!tabController!.indexIsChanging) getTransactions(summariesFromFund[tabController!.index]);
+    page = tabController!.index;
   }
 
   Future<void> changeCard(int cardIndex) async {
     if (cardIndex == 0) {
       selectedFund.value = null;
-      summaryTransactionsFromFund.clear();
+      summariesFromFund.clear();
+      transactions.clear();
     } else if (cardIndex > 0) {
       selectedFund(funds[cardIndex - 1]);
       await _verifyAndCreateSummaries();
       _getListSummariesFromFund();
+      _getTransactionsFromFirstSummary();
     }
   }
 
@@ -62,24 +81,56 @@ class HomeController extends GetxController with MessagesMixin {
         _authUserController.userLogged!.isAdmin,
         _authUserController.userLogged!.cards,
       ));
-
-    if (funds.isNotEmpty && funds.first.failure == null) {
-      funds.map((f) async {
-        _summaryTransactions.clear();
-        await getSummary(f.id);
-        return f;
-      }).toList();
-    } else {
-      _defineError(funds.first.failure!);
-    }
-
     loadingFunds(false);
   }
 
+  void getAllSummariesFromFunds() {
+    if (funds.isNotEmpty && funds.first.failure != null) {
+      _defineError(funds.first.failure!);
+    }
+    funds.map((f) async {
+      _summaries.clear();
+      await getSummary(f.id);
+      return f;
+    }).toList();
+  }
+
+  Future<void> getTransactions(SummaryTransactionEntity summary) async {
+    print('BUSCANDO TRANSAÇÕES');
+    transactionCancellationToken?.cancel();
+    transactionCancellationToken = CancellationToken();
+    try {
+      loadingTransactions(true);
+      transactions
+        ..clear()
+        ..addAll(await _getAllTransactionsUseCase(
+          _authUserController.userLogged!.uid,
+          summary.id,
+          selectedFund.value!.id,
+        ).asCancellable(transactionCancellationToken));
+    } catch (_) {}
+
+    if (transactions.isNotEmpty && transactions.first.failure != null) {
+      _defineError(transactions.first.failure!);
+    }
+    loadingTransactions(false);
+  }
+
+  void _getTransactionsFromFirstSummary() {
+    var item = summariesFromFund.singleWhere(
+      (smr) => AppConstants.todayNow.isDateBetween(
+        selectedFund.value!.closeDate.getFirstDate(smr.closeDate.getPreviousMonth()),
+        smr.closeDate.subtract(const Duration(days: 1)),
+      ),
+    );
+    page = summariesFromFund.indexOf(item);
+    getTransactions(item);
+  }
+
   void _getListSummariesFromFund() {
-    summaryTransactionsFromFund
+    summariesFromFund
       ..clear()
-      ..addAll(_summaryTransactions.where((smr) {
+      ..addAll(_summaries.where((smr) {
         return smr.idFund == selectedFund.value!.id;
       }).toList());
   }
@@ -87,7 +138,7 @@ class HomeController extends GetxController with MessagesMixin {
   Future<void> getSummary(String fundId) async {
     loadingSummariesTransactions(true);
     print('BUSCANDO SUMÁRIOS...');
-    _summaryTransactions.addAll(
+    _summaries.addAll(
       await _getAllSummaryFromFundUseCase(fundId, _authUserController.userLogged!.uid),
     );
     loadingSummariesTransactions(false);
@@ -120,7 +171,7 @@ class HomeController extends GetxController with MessagesMixin {
     var expireDate = fund.expireDate.getFirstDate(closeDate);
     if (fund.closeInSameMonth) expireDate = expireDate.getNextMonth();
 
-    _summaryTransactions.map((smr) {
+    _summaries.map((smr) {
       if (saveDate?.month == smr.month &&
           saveDate?.year == smr.year &&
           smr.idFund == selectedFund.value!.id) {
@@ -140,14 +191,14 @@ class HomeController extends GetxController with MessagesMixin {
   ) async {
     print('CRIANDO REGISTRO DE NOVO SUMÁRIO COM ID $newDate');
     var data = {
-      'id': int.parse('${newDate.month}${newDate.year}'),
+      'id': '${newDate.month}${newDate.year}',
       'ano': newDate.year,
       'numeroMes': newDate.month,
       'fechamento': Timestamp.fromDate(closeDate),
       'vencimento': Timestamp.fromDate(expireDate),
       'idFundo': fund.id,
       'pago': false,
-      'total': 0
+      'total': 0,
     };
     SummaryTransactionEntity newSmr = SummaryTransaction.fromJson(data);
     try {
@@ -157,9 +208,9 @@ class HomeController extends GetxController with MessagesMixin {
         newDate.format(AppConstants.monthUnderlineYearPattern),
         data,
       );
-      _summaryTransactions.add(newSmr);
+      _summaries.add(newSmr);
     } on Failure catch (err) {
-    _defineError(err);
+      _defineError(err);
     }
   }
 

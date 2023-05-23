@@ -19,12 +19,6 @@ class _HomePageState extends State<HomePage> {
   final int maxAdaptiveScreenWidth = 900;
 
   @override
-  void initState() {
-    _controller.pageController = PageController();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
       if ((kIsWeb && MediaQuery.of(context).size.width > maxAdaptiveScreenWidth) ||
@@ -37,7 +31,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildPageOthersPlatforms(BuildContext context) {
     const itemWidth = 280.0;
-
     return Obx(() {
       return SingleChildScrollView(
         child: Column(
@@ -71,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 18),
                 Visibility(
                   visible: _controller.selectedFund.value != null &&
-                      _controller.summaryTransactionsFromFund.isNotEmpty,
+                      _controller.summariesFromFund.isNotEmpty,
                   child: const TransactionsList(),
                 ),
               ],
@@ -99,9 +92,7 @@ class _HomePageState extends State<HomePage> {
                 type: StackedCardCarouselType.fadeOutStack,
                 initialOffset: 5,
                 spaceBetweenItems: 420,
-                items: _controller.funds.isEmpty
-                    ? [const SizedBox.shrink()]
-                    : [
+                items: [
                         MenuSummary(
                           reloadData: _controller.onInit,
                           width: itemWidth,
@@ -121,7 +112,7 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Visibility(
               visible: _controller.selectedFund.value != null &&
-                  _controller.summaryTransactionsFromFund.isNotEmpty,
+                  _controller.summariesFromFund.isNotEmpty,
               child: const TransactionsList(),
             ),
           )

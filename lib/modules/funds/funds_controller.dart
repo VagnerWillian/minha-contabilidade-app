@@ -47,8 +47,14 @@ class FundsController extends GetxController with MessagesMixin {
 
   Future<void> init() async {
     listens();
-    await getAllFunds();
-    await getAllBrands();
+    try {
+      await getAllFunds();
+      await getAllBrands();
+      if (funds.isEmpty) newFund();
+      changeCard(0);
+    } on Failure catch (err) {
+      _defineError(err);
+    }
   }
 
   void listens() {
@@ -109,7 +115,7 @@ class FundsController extends GetxController with MessagesMixin {
 
   Future<void> newFund() async {
     if (funds.isEmpty || funds.first.id.isNotEmpty) funds.insert(0, Fund.empty());
-    jumpCarouselToStart();
+    if (funds.length > 1) jumpCarouselToStart();
     changeCard(0);
     enabledFields(true);
   }
@@ -123,8 +129,6 @@ class FundsController extends GetxController with MessagesMixin {
         _authUserController.userLogged!.isAdmin,
         _authUserController.userLogged!.cards,
       ));
-    if (funds.isEmpty) newFund();
-    changeCard(0);
   }
 
   Future<void> deleteFund() async {
@@ -143,9 +147,9 @@ class FundsController extends GetxController with MessagesMixin {
     loadings(false);
   }
 
-  void jumpCarouselToStart(){
+  void jumpCarouselToStart() {
     if (pageController.hasClients) pageController.jumpToPage(0);
-    if(!kIsWeb) carouselController.jumpToPage(0);
+    if (!kIsWeb) carouselController.jumpToPage(0);
   }
 
   Future<void> getAllBrands() async {
@@ -172,12 +176,9 @@ class FundsController extends GetxController with MessagesMixin {
       selectedFund.value!.isCredit = isCredit.value;
       selectedFund.value!.active = activeFund.value;
       selectedFund.value!.order = funds.length - 1;
+      if (selectedFund.value!.id.isEmpty) selectedFund.value!.generateId();
       try {
-        String id = await _createFundUseCase(selectedFund.value!.toJson);
-        if (selectedFund.value!.id.isEmpty) {
-          selectedFund.value!.id = id;
-          changeCard(0);
-        }
+        await _createFundUseCase(selectedFund.value!.toJson);
         enabledFields(false);
         print('FUNDO ${selectedFund.value!.name.toUpperCase()} CRIADO!');
       } on Failure catch (err) {

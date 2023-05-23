@@ -9,7 +9,7 @@ class SummaryTransaction implements SummaryTransactionEntity {
   late final Failure? failure;
 
   @override
-  late final int id;
+  late final String id;
 
   @override
   late final String idFund;

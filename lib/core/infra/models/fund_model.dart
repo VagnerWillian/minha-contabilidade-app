@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core.dart';
 
@@ -95,19 +98,20 @@ class Fund extends GetxController with EquatableMixin implements FundEntity {
   }
 
   factory Fund.empty() => Fund(
-      active: true,
-      closeDate: 1,
-      color: '#666666',
-      expireDate: 30,
-      id: '',
-      limit: 0.0,
-      name: '',
-      logo: '',
-      isCredit: true,
-      order: 0,
-      brandId: '',
-      brandUrl: '',
-      failure: null);
+        active: true,
+        closeDate: 1,
+        color: '#666666',
+        expireDate: 30,
+        id: '',
+        limit: 0.0,
+        name: '',
+        logo: '',
+        isCredit: true,
+        order: 0,
+        brandId: '',
+        brandUrl: '',
+        failure: null,
+      );
 
   @override
   Map<String, dynamic> get toJson => {
@@ -153,4 +157,9 @@ class Fund extends GetxController with EquatableMixin implements FundEntity {
         order,
         failure,
       ];
+
+  @override
+  void generateId() {
+    id = '${name.replaceAll(' ', '_').remotePoints()}_${const Uuid().v4()}';
+  }
 }

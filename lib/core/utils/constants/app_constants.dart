@@ -2,6 +2,7 @@ class AppConstants {
   static bool mockApp = false;
 
   static final DateTime todayNow = DateTime.now();
+  // static final DateTime todayNow = DateTime(2024, 3, 3);
 
   /// [Language App]
   static String defaultLanguageApp = 'pt_BR';
@@ -26,6 +27,8 @@ class AppConstants {
   static const String errorImageLoad = 'Não foi possível carregar imagem, verifique sua conexão.';
   static const String unauthenticatedUser = 'Usuário não autenticado';
   static const String listFundsEmpty = 'Problema ao carregar fundos..';
+  static const String listSummariesEmpty = 'Nenhum resumo de período carregou :(';
+  static const String listTransactionsEmpty = 'Nenhuma compra realizada neste período';
 
   /// [Form Validators]
   static const String fieldRequired = 'Campo obrigatório';
