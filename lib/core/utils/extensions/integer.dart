@@ -1,7 +1,5 @@
 import 'package:intl/intl.dart';
 
-import '../../core.dart';
-import 'datetime.dart';
 
 extension IntegerExtension on int {
   String format(String pattern) {
@@ -9,7 +7,7 @@ extension IntegerExtension on int {
     return f.format(this);
   }
 
-  String get toMonth =>
+  String get name =>
       {
         1: 'Janeiro',
         2: 'Fevereiro',
@@ -30,7 +28,7 @@ extension IntegerExtension on int {
     if (this < 1 || this > 31) {
       throw 'integer $this is nothing between 1 and 31';
     }
-    var today = date ?? AppConstants.todayNow;
+    var today = date ?? DateTime.now();
     int day = 1;
 
     DateTime firstDate = DateTime(today.year, today.month, day);

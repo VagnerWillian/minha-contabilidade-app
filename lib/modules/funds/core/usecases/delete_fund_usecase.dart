@@ -1,4 +1,3 @@
-import '../../../../core/core.dart';
 import '../domain/repositories/repository.dart';
 
 class DeleteFundUseCase {

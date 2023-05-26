@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import 'core/usecases/get_all_transactions_usecase.dart';
 import 'core/domain/repositories/repository.dart';
 import 'core/infra/repositories/firebase_repository.dart';
 import 'core/usecases/usecases.dart';
@@ -17,13 +16,22 @@ class HomeBindings implements Bindings {
             Get.find(),
             Get.find(),
             Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
           ))
 
       //UseCases
       ..lazyReplace(() => GetAllFundsUseCase(Get.find()))
       ..lazyPut(() => GetSummaryFromFund(Get.find()))
       ..lazyPut(() => CreateSummaryFundUseCase(Get.find()))
+      ..lazyPut(() => UpdateSummaryFundUseCase(Get.find()))
       ..lazyPut(() => GetAllTransactionsUseCase(Get.find()))
+      ..lazyPut(() => CreateTransactionUseCase(Get.find()))
+      ..lazyPut(() => CreateTransactionUseCase(Get.find()))
+      ..lazyPut(() => DeleteTransactionUseCase(Get.find()))
+      ..lazyPut(() => UpdateTransactionUseCase(Get.find()))
 
       //Repositories
       ..lazyPut<HomeRepository>(() => FirebaseHomeRepository());

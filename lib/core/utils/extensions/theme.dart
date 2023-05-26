@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
   final Color? successColor;
-  final Color? failureColor;
+  final Color? red;
   final Color? warningColor;
   final Color? grey200;
   final Color? grey300;
@@ -13,10 +13,11 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
   final Color? black;
   final Color? blackGrey;
   final Color? blue50;
+  final Color? blue100;
 
   CustomThemeColors({
     required this.successColor,
-    required this.failureColor,
+    required this.red,
     required this.warningColor,
     required this.grey200,
     required this.grey500,
@@ -27,6 +28,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     required this.black,
     required this.blackGrey,
     required this.blue50,
+    required this.blue100,
   });
 
   @override
@@ -43,11 +45,12 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     Color? black,
     Color? blackGrey,
     Color? blue50,
+    Color? blue100,
     Color? white,
   }) {
     return CustomThemeColors(
       successColor: successColor,
-      failureColor: failureColor,
+      red: failureColor,
       warningColor: warningColor,
       grey200: grey200,
       grey500: grey500,
@@ -58,6 +61,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
       white: white,
       green: green,
       blue50: blue50,
+      blue100: blue100,
     );
   }
 
@@ -69,7 +73,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     if (other is! CustomThemeColors) return this;
     return CustomThemeColors(
       successColor: successColor,
-      failureColor: failureColor,
+      red: red,
       warningColor: warningColor,
       white: white,
       black: black,
@@ -80,6 +84,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
       grey400: grey400,
       green: green,
       blue50: blue50,
+      blue100: blue100,
     );
   }
 }

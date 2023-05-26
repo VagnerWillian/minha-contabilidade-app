@@ -29,7 +29,7 @@ class SplashController extends GetxController with MessagesMixin {
 
   Future<void> loadRemoteConfigAndInitialize() async {
     try {
-      await _remoteConfigService.init();
+      // await _remoteConfigService.init();
       hasFirstAccess();
     } on Failure catch (err) {
       _defineError(err);
@@ -37,7 +37,7 @@ class SplashController extends GetxController with MessagesMixin {
   }
 
   Future<void> hasFirstAccess() async {
-    // bool first = await _localStorageService.getFirstAccess();
+    bool first = await _localStorageService.getFirstAccess();
     String loggedUUID = await _getSessionData();
     if (loggedUUID.isNotEmpty) {
       bool userOk = await _getUserData(loggedUUID);

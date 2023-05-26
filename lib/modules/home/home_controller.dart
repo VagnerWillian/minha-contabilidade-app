@@ -2,29 +2,35 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jiffy/jiffy.dart';
 import 'dart:async';
 
 import '../../controllers/auth_user_controller.dart';
 import '../../core/core.dart';
-import 'core/usecases/get_all_transactions_usecase.dart';
 import 'core/domain/entities/entities.dart';
 import 'core/infra/models/models.dart';
 import 'core/usecases/usecases.dart';
 
 class HomeController extends GetxController with MessagesMixin {
-  final AuthUserController _authUserController;
+  final AuthUserController authUserController;
   final GetAllFundsUseCase _getAllFundsUseCase;
   final GetSummaryFromFund _getAllSummaryFromFundUseCase;
   final CreateSummaryFundUseCase _createSummaryFundUseCase;
+  final UpdateSummaryFundUseCase _updateSummaryFundUseCase;
   final GetAllTransactionsUseCase _getAllTransactionsUseCase;
+  final CreateTransactionUseCase _createTransactionUseCase;
+  final UpdateTransactionUseCase _updateTransactionUseCase;
+  final DeleteTransactionUseCase _deleteTransactionUseCase;
 
   HomeController(
-    this._authUserController,
+    this.authUserController,
     this._getAllFundsUseCase,
     this._getAllSummaryFromFundUseCase,
     this._createSummaryFundUseCase,
+    this._updateSummaryFundUseCase,
     this._getAllTransactionsUseCase,
+    this._createTransactionUseCase,
+    this._updateTransactionUseCase,
+    this._deleteTransactionUseCase,
   );
 
   final List<SummaryTransactionEntity> _summaries = [];
@@ -78,9 +84,10 @@ class HomeController extends GetxController with MessagesMixin {
     funds
       ..clear()
       ..addAll(await _getAllFundsUseCase(
-        _authUserController.userLogged!.isAdmin,
-        _authUserController.userLogged!.cards,
-      ));
+        authUserController.userLogged!.isAdmin,
+        authUserController.userLogged!.cards,
+      ))
+      ..sort((a, b) => a.active ? -1 : 1);
     loadingFunds(false);
   }
 
@@ -95,33 +102,14 @@ class HomeController extends GetxController with MessagesMixin {
     }).toList();
   }
 
-  Future<void> getTransactions(SummaryTransactionEntity summary) async {
-    print('BUSCANDO TRANSAÇÕES');
-    transactionCancellationToken?.cancel();
-    transactionCancellationToken = CancellationToken();
-    try {
-      loadingTransactions(true);
-      transactions
-        ..clear()
-        ..addAll(await _getAllTransactionsUseCase(
-          _authUserController.userLogged!.uid,
-          summary.id,
-          selectedFund.value!.id,
-        ).asCancellable(transactionCancellationToken));
-    } catch (_) {}
-
-    if (transactions.isNotEmpty && transactions.first.failure != null) {
-      _defineError(transactions.first.failure!);
-    }
-    loadingTransactions(false);
-  }
-
   void _getTransactionsFromFirstSummary() {
     var item = summariesFromFund.singleWhere(
-      (smr) => AppConstants.todayNow.isDateBetween(
-        selectedFund.value!.closeDate.getFirstDate(smr.closeDate.getPreviousMonth()),
-        smr.closeDate.subtract(const Duration(days: 1)),
-      ),
+      (smr) => AppConstants().todayNow.isDateBetween(
+            selectedFund.value!.closeDate
+                .getFirstDate(smr.closeDate.getPreviousMonth())
+                .subtract(const Duration(days: 1)),
+            smr.closeDate,
+          ),
     );
     page = summariesFromFund.indexOf(item);
     getTransactions(item);
@@ -139,7 +127,7 @@ class HomeController extends GetxController with MessagesMixin {
     loadingSummariesTransactions(true);
     print('BUSCANDO SUMÁRIOS...');
     _summaries.addAll(
-      await _getAllSummaryFromFundUseCase(fundId, _authUserController.userLogged!.uid),
+      await _getAllSummaryFromFundUseCase(fundId, authUserController.userLogged!.uid),
     );
     loadingSummariesTransactions(false);
   }
@@ -147,7 +135,7 @@ class HomeController extends GetxController with MessagesMixin {
   Future<void> _verifyAndCreateSummaries() async {
     var fund = selectedFund.value!;
 
-    DateTime tmp = AppConstants.todayNow;
+    DateTime tmp = AppConstants().todayNow;
     var closeDate = fund.closeDate.getFirstDate(tmp);
     DateTime? saveDate;
 
@@ -191,7 +179,7 @@ class HomeController extends GetxController with MessagesMixin {
   ) async {
     print('CRIANDO REGISTRO DE NOVO SUMÁRIO COM ID $newDate');
     var data = {
-      'id': '${newDate.month}${newDate.year}',
+      'id': newDate.format(AppConstants.monthUnderlineYearPattern),
       'ano': newDate.year,
       'numeroMes': newDate.month,
       'fechamento': Timestamp.fromDate(closeDate),
@@ -203,9 +191,8 @@ class HomeController extends GetxController with MessagesMixin {
     SummaryTransactionEntity newSmr = SummaryTransaction.fromJson(data);
     try {
       await _createSummaryFundUseCase(
-        _authUserController.userLogged!.uid,
+        authUserController.userLogged!.uid,
         selectedFund.value!.id,
-        newDate.format(AppConstants.monthUnderlineYearPattern),
         data,
       );
       _summaries.add(newSmr);
@@ -214,12 +201,102 @@ class HomeController extends GetxController with MessagesMixin {
     }
   }
 
+  Future<bool> _updateSummary() async {
+    try {
+      await _updateSummaryFundUseCase(
+        authUserController.userLogged!.uid,
+        summariesFromFund[page],
+      );
+      return true;
+    } on Failure catch (err) {
+      _defineError(err);
+      return false;
+    }
+  }
+
+  Future<void> getTransactions(SummaryTransactionEntity summary) async {
+    print('BUSCANDO TRANSAÇÕES');
+    transactionCancellationToken?.cancel();
+    transactionCancellationToken = CancellationToken();
+    try {
+      loadingTransactions(true);
+      transactions
+        ..clear()
+        ..addAll(await _getAllTransactionsUseCase(
+          authUserController.userLogged!.uid,
+          summary.id,
+          selectedFund.value!.id,
+        ).asCancellable(transactionCancellationToken));
+      reorderTransactionsList();
+    } catch (_) {}
+
+    if (transactions.isNotEmpty && transactions.first.failure != null) {
+      _defineError(transactions.first.failure!);
+    }
+    loadingTransactions(false);
+  }
+
+  Future<void> createTransaction(TransactionEntity transaction) async {
+    print('CRIANDO TRANSAÇÃO...');
+    try {
+      await _createTransactionUseCase(transaction);
+      transactions.insert(0, transaction);
+      summariesFromFund[page].totally += transaction.price;
+      if (!await _updateSummary()) summariesFromFund[page].totally -= transaction.price;
+    } on Failure catch (err) {
+      _defineError(err);
+    }
+  }
+
+  Future<bool> deleteTransaction(TransactionEntity transaction) async {
+    print('DELETANDO TRANSAÇÃO...');
+    try {
+      await _deleteTransactionUseCase(transaction);
+      transactions.removeWhere((trs) => trs.id == transaction.id);
+      summariesFromFund[page].totally -= transaction.price;
+      if (!await _updateSummary()) summariesFromFund[page].totally += transaction.price;
+      return true;
+    } on Failure catch (err) {
+      _defineError(err);
+      return false;
+    }
+  }
+
+  Future<bool> updateTransaction(TransactionEntity transaction) async {
+    print('ATUALIZANDO TRANSAÇÃO...');
+    try {
+      await _updateTransactionUseCase(transaction);
+      reorderTransactionsList();
+      return true;
+    } on Failure catch (err) {
+      _defineError(err);
+      return false;
+    }
+  }
+
+  void reorderTransactionsList() {
+    transactions.sort((a, b) {
+      if (a.approvedDate.isEmpty && b.approvedDate.isNotEmpty) {
+        return -1;
+      } else if (a.approvedDate.isNotEmpty && b.approvedDate.isEmpty) {
+        return 1;
+      } else {
+        return b.date.compareTo(a.date);
+      }
+    });
+  }
+
   void _defineError(Failure err) {
     if (err is FailureNetwork) {
       _message(MessageModel.network(
         title: err.error,
         message: err.message,
         failureNetwork: err,
+      ));
+    } else if (err is FailureFirestore) {
+      _message(MessageModel.error(
+        title: err.error,
+        message: err.message,
       ));
     } else if (err is FailureApp) {
       _message(MessageModel.error(

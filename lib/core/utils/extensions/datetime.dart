@@ -42,6 +42,6 @@ extension DatetTimeExtension on DateTime {
   }
 
   bool isDateBetween(DateTime startDate, DateTime endDate) {
-    return (isAfter(startDate) || this == startDate) && (isBefore(endDate) || this == endDate);
+    return isAfter(startDate) && isBefore(endDate);
   }
 }

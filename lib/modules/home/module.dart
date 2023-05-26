@@ -12,6 +12,6 @@ class HomeModule extends WidgetModule {
   Bindings? get bindings => HomeBindings();
 
   @override
-  Widget get view => HomePage();
+  Widget get view => const HomePage();
 
 }

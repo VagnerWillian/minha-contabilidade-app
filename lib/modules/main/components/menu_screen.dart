@@ -37,7 +37,10 @@ class MenuScreen extends StatelessWidget {
                 buildItemMenu(
                   LineAwesome.credit_card,
                   'Fundos',
-                  onTap: () => Get.toNamed(AppRoutes.fundsRoute),
+                  onTap: ()async {
+                    await Get.toNamed(AppRoutes.fundsRoute);
+                    Get.find<HomeController>().onInit();
+                  },
                 ),
                 buildItemMenu(LineAwesome.users_solid, 'Usuarios'),
                 buildItemMenu(LineAwesome.youtube, 'Assinaturas'),

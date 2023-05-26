@@ -1,8 +1,7 @@
 class AppConstants {
   static bool mockApp = false;
-
-  static final DateTime todayNow = DateTime.now();
-  // static final DateTime todayNow = DateTime(2024, 3, 3);
+  DateTime todayNow = DateTime.now();
+  // static final DateTime todayNow = DateTime(2023,05,25);
 
   /// [Language App]
   static String defaultLanguageApp = 'pt_BR';
@@ -14,15 +13,19 @@ class AppConstants {
   /// [Number Patterns]
   static String decimalNumber = '#00';
 
+  /// [Number Patterns]
+  static const firebaseTimeout = 5;
+
   /// [Default Messages]
   static const String defaultSuccessTitle = 'Tudo certo';
   static const String firebaseErrorTitle = 'Problemas com o banco de dados';
-  static const String defaultErrorTitle = 'Ops...';
+  static const String defaultErrorTitle = 'Ops, houve um problema!';
   static const String defaultWarningTitle = 'Atenção';
   static const String defaultErrorMessage = 'Ocorreu um erro, mas já estamos trabalhando para resolver.';
   static const String defaultCancelMessage = 'Cancelar';
   static const String defaultLoginErrorTitle = 'Não foi possível entrar';
   static const String remoteConfigErrorMessage = 'Problema na configuração remota';
+  static const String firebaseErrorMessage = 'Problema ao obter dados do Firebase';
   static const String dataNotFound = 'Nenhum dado encontrado!';
   static const String errorImageLoad = 'Não foi possível carregar imagem, verifique sua conexão.';
   static const String unauthenticatedUser = 'Usuário não autenticado';

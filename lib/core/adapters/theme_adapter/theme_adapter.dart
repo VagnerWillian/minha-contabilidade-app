@@ -34,7 +34,7 @@ class ThemeAdapter {
       extensions: <CustomThemeColors>[
         CustomThemeColors(
           successColor: AppColors.success,
-          failureColor: AppColors.error,
+          red: AppColors.error,
           warningColor: AppColors.warning,
           grey200: AppColors.grey200,
           grey300: AppColors.grey300,
@@ -44,7 +44,8 @@ class ThemeAdapter {
           black: AppColors.black,
           blackGrey: AppColors.blackGrey,
           green: AppColors.green,
-          blue50: AppColors.blue50
+          blue50: AppColors.blue50,
+          blue100: AppColors.blue100
         ),
       ],
       primaryColor: AppColors.primary,

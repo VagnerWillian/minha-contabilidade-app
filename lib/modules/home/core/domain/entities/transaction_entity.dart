@@ -7,9 +7,10 @@ abstract class SummaryTransactionEntity{
   late int year;
   late int month;
   late bool paid;
-  late int totally;
+  late num totally;
   late DateTime expireDate;
   late DateTime closeDate;
+  Map<String, dynamic> get toJson;
 }
 
 abstract class TransactionEntity{
@@ -17,9 +18,13 @@ abstract class TransactionEntity{
   late String id;
   late String idFund;
   late String userName;
+  late String userId;
+  late String summaryId;
   late String description;
   late String date;
   late bool isPurchase;
-  late bool approved;
+  late String approvedDate;
   late num price;
+  Map<String, dynamic> get toJson;
+  void generateId();
 }

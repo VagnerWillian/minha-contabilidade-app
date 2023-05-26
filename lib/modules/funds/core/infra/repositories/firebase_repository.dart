@@ -6,14 +6,11 @@ import '../../domain/repositories/repository.dart';
 import '../models/models.dart';
 
 class FirebaseFundsRepository implements FundsRepository {
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   final _docFundsRef =
       FirebaseFirestore.instance.collection('fundos');
 
   final _docBrandsRef = FirebaseFirestore.instance.collection('bandeiras');
-
-  final _docTransactionsRef = FirebaseFirestore.instance.collection('extratos');
 
   @override
   Future<List<FundEntity>> getAllFunds() async {

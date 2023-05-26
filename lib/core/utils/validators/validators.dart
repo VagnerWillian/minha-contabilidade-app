@@ -25,7 +25,7 @@ class Validators {
     return null;
   }
 
-  static String? validateTextEmpty(String str) {
+  static String? validateTextEmpty(str) {
     if (str.isEmpty) {
       return 'Campo obrigatório';
     }

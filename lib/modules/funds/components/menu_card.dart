@@ -55,7 +55,7 @@ class MenuCard extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               color,
-              color.withOpacity(0.80)
+              color.withOpacity(0.8)
             ],
           ),
           borderRadius: BorderRadius.circular(10),

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:equatable/equatable.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
@@ -160,6 +158,6 @@ class Fund extends GetxController with EquatableMixin implements FundEntity {
 
   @override
   void generateId() {
-    id = '${name.replaceAll(' ', '_').remotePoints()}_${const Uuid().v4()}';
+    id = '${name.toLowerCase().replaceAll(' ', '_').remotePoints()}_${const Uuid().v4()}';
   }
 }

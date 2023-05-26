@@ -7,13 +7,11 @@ class CreateSummaryFundUseCase {
   Future<void> call(
     String uid,
     String fundId,
-    String summaryId,
     Map<String, dynamic> data,
   ) async {
     return await _repository.createSummaryFromFund(
       uid,
       fundId,
-      summaryId,
       data,
     );
   }

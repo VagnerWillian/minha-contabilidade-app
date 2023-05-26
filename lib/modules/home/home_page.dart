@@ -42,7 +42,12 @@ class _HomePageState extends State<HomePage> {
                 items: [
                   MenuSummary(reloadData: _controller.onInit, width: itemWidth),
                   ..._controller.funds
-                      .map((fund) => MenuCard(fund: fund, width: itemWidth))
+                      .map(
+                        (fund) => MenuCard(
+                          fund: fund,
+                          width: itemWidth,
+                        ),
+                      )
                       .toList(),
                 ],
                 options: CarouselOptions(
@@ -93,19 +98,19 @@ class _HomePageState extends State<HomePage> {
                 initialOffset: 5,
                 spaceBetweenItems: 420,
                 items: [
-                        MenuSummary(
-                          reloadData: _controller.onInit,
-                          width: itemWidth,
-                          height: 400,
-                        ),
-                        ..._controller.funds
-                            .map((fund) => MenuCard(
-                                  fund: fund,
-                                  width: itemWidth,
-                                  height: 400,
-                                ))
-                            .toList(),
-                      ].toList(),
+                  MenuSummary(
+                    reloadData: _controller.onInit,
+                    width: itemWidth,
+                    height: 400,
+                  ),
+                  ..._controller.funds
+                      .map((fund) => MenuCard(
+                            fund: fund,
+                            width: itemWidth,
+                            height: 400,
+                          ))
+                      .toList(),
+                ].toList(),
               ),
             ),
           ),

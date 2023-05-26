@@ -7,8 +7,14 @@ abstract class HomeRepository {
   Future<void> createSummaryFromFund(
     String uid,
     String fundId,
-    String summaryId,
     Map<String, dynamic> data,
   );
+  Future<void> updateSummaryFromFund(
+    String uid,
+    SummaryTransactionEntity transaction,
+  );
   Future<List<TransactionEntity>> getAllTransactions(String uid, String summaryId, String fundId);
+  Future<void> createTransaction(TransactionEntity transaction);
+  Future<void> updateTransaction(TransactionEntity transaction);
+  Future<void> deleteTransaction(TransactionEntity transaction);
 }

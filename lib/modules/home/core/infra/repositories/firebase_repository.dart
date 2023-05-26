@@ -6,10 +6,8 @@ import '../../domain/repositories/repository.dart';
 import '../models/models.dart';
 
 class FirebaseHomeRepository implements HomeRepository {
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
-  final _docCardsRef =
-      FirebaseFirestore.instance.collection('fundos');
+  final _docCardsRef = FirebaseFirestore.instance.collection('fundos');
   final _extractsRef = FirebaseFirestore.instance.collection('extrato');
 
   @override
@@ -27,12 +25,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (err) {
       return [Fund.failure(err)];
     } on FirebaseException catch (_) {
-      return [
-        Fund.failure(FailureNetwork(
-          error: AppConstants.firebaseErrorTitle,
-          message: 'Não foi possível criar a fatura do mês atual',
-        ))
-      ];
+      return [Fund.failure(FailureFirestore())];
     } catch (err, stack) {
       return [
         Fund.failure(
@@ -56,19 +49,12 @@ class FirebaseHomeRepository implements HomeRepository {
       summariesSnapshot.docs.map((doc) {
         summaries.add(SummaryTransaction.fromJson((doc.data() as Map<String, dynamic>)));
       }).toList();
-      summaries.sort((a,b)=>DateTime(a.year, a.month).compareTo(DateTime(b.year, b.month)));
+      summaries.sort((a, b) => DateTime(a.year, a.month).compareTo(DateTime(b.year, b.month)));
       return summaries;
     } on FailureNetwork catch (err) {
       return [SummaryTransaction.failure(err, fundId)];
     } on FirebaseException catch (_) {
-      return [
-        SummaryTransaction.failure(
-            FailureNetwork(
-              error: AppConstants.firebaseErrorTitle,
-              message: 'Não foi possível criar a fatura do mês atual',
-            ),
-            fundId)
-      ];
+      return [SummaryTransaction.failure(FailureFirestore(), fundId)];
     } catch (err, stack) {
       return [
         SummaryTransaction.failure(
@@ -83,7 +69,6 @@ class FirebaseHomeRepository implements HomeRepository {
   Future<void> createSummaryFromFund(
     String uid,
     String fundId,
-    String summaryId,
     Map<String, dynamic> data,
   ) async {
     try {
@@ -92,19 +77,46 @@ class FirebaseHomeRepository implements HomeRepository {
           .collection('resumos')
           .doc('fundos')
           .collection(fundId)
-          .doc(summaryId)
+          .doc(data['id'])
           .set(data);
-    } on FailureNetwork catch (err) {
+    } on FailureNetwork catch (_) {
       rethrow;
-    } on FirebaseException catch (e) {
-      throw FailureNetwork(
-        error: AppConstants.firebaseErrorTitle,
-        message: 'Não foi possível criar a fatura do mês atual',
-      );
+    } on FirebaseException catch (_) {
+      throw FailureFirestore();
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),
         error: 'Não foi possível criar a fatura do mês atual',
+        stackTrace: stack,
+      );
+    }
+  }
+
+
+  @override
+  Future<void> updateSummaryFromFund(
+      String uid,
+      SummaryTransactionEntity summary,
+      ) async {
+    try {
+      await _extractsRef
+          .doc(uid)
+          .collection('resumos')
+          .doc('fundos')
+          .collection(summary.idFund)
+          .doc(summary.id)
+          .update(summary.toJson)
+          .timeout(
+        const Duration(seconds: AppConstants.firebaseTimeout),
+        onTimeout: () => null,
+      );
+    } on FailureNetwork catch (_) {
+      rethrow;
+    } on FirebaseException {
+      throw FailureFirestore();
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
         stackTrace: stack,
       );
     }
@@ -125,32 +137,19 @@ class FirebaseHomeRepository implements HomeRepository {
           .collection('compras')
           .where('idFundo', isEqualTo: fundId)
           .get();
-      await Future.delayed(Duration(seconds: 3));
 
       queryCreditSnapshot.docs
-          .map((doc) => list.add(TransactionFund.fromJson(
-                (doc.data() as Map<String, dynamic>),
-              )))
+          .map((doc) => list.add(
+                TransactionFund.fromJson(
+                  (doc.data() as Map<String, dynamic>),
+                ),
+              ))
           .toList();
       return list;
     } on FailureNetwork catch (_) {
-      return [
-        TransactionFund.failure(
-          FailureNetwork(
-            error: AppConstants.firebaseErrorTitle,
-            message: 'Não foi possível criar a fatura do mês atual',
-          ),
-        )
-      ];
+      return [TransactionFund.failure(FailureFirestore())];
     } on FirebaseException catch (_) {
-      return [
-        TransactionFund.failure(
-          FailureNetwork(
-            error: AppConstants.firebaseErrorTitle,
-            message: 'Não foi possível criar a fatura do mês atual',
-          ),
-        )
-      ];
+      return [TransactionFund.failure(FailureFirestore())];
     } catch (err, stack) {
       return [
         TransactionFund.failure(
@@ -160,6 +159,84 @@ class FirebaseHomeRepository implements HomeRepository {
           ),
         )
       ];
+    }
+  }
+
+  @override
+  Future<void> createTransaction(TransactionEntity transaction) async {
+    try {
+      await _extractsRef
+          .doc(transaction.userId)
+          .collection('gastos')
+          .doc(transaction.summaryId)
+          .collection('compras')
+          .doc(transaction.id)
+          .set(transaction.toJson)
+          .timeout(
+            const Duration(seconds: AppConstants.firebaseTimeout),
+            onTimeout: () => null,
+          );
+    } on FailureNetwork catch (_) {
+      rethrow;
+    } on FirebaseException catch (_) {
+      throw FailureFirestore();
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
+        stackTrace: stack,
+      );
+    }
+  }
+
+  @override
+  Future<void> deleteTransaction(TransactionEntity transaction) async {
+    try {
+      await _extractsRef
+          .doc(transaction.userId)
+          .collection('gastos')
+          .doc(transaction.summaryId)
+          .collection('compras')
+          .doc(transaction.id)
+          .delete()
+          .timeout(
+            const Duration(seconds: AppConstants.firebaseTimeout),
+            onTimeout: () => null,
+          );
+    } on FailureNetwork catch (_) {
+      rethrow;
+    } on FirebaseException {
+      throw FailureFirestore();
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
+        stackTrace: stack,
+      );
+    }
+  }
+
+  @override
+  Future<void> updateTransaction(TransactionEntity transaction) async {
+    try {
+      await _extractsRef
+          .doc(transaction.userId)
+          .collection('gastos')
+          .doc(transaction.summaryId)
+          .collection('compras')
+          .doc(transaction.id)
+          .set(transaction.toJson)
+          .timeout(
+            const Duration(seconds: AppConstants.firebaseTimeout),
+            onTimeout: () => null,
+          );
+    } on FailureNetwork catch (_) {
+      rethrow;
+    } on FirebaseException {
+      throw FailureFirestore();
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
+        stackTrace: stack,
+      );
     }
   }
 }

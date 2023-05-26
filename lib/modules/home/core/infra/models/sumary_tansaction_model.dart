@@ -4,7 +4,6 @@ import '../../../../../core/core.dart';
 import '../../domain/entities/entities.dart';
 
 class SummaryTransaction implements SummaryTransactionEntity {
-
   @override
   late final Failure? failure;
 
@@ -18,7 +17,7 @@ class SummaryTransaction implements SummaryTransactionEntity {
   late final bool paid;
 
   @override
-  late final int totally;
+  late num totally;
 
   @override
   late final int year;
@@ -56,4 +55,16 @@ class SummaryTransaction implements SummaryTransactionEntity {
   }
 
   SummaryTransaction.failure(this.failure, this.idFund);
+
+  @override
+  Map<String, dynamic> get toJson => {
+        'id': id,
+        'idFundo': idFund,
+        'pago': paid,
+        'total': double.parse(totally.toStringAsFixed(2)),
+        'ano': year,
+        'numeroMes': month,
+        'vencimento': Timestamp.fromDate(expireDate),
+        'fechamento': Timestamp.fromDate(closeDate)
+      };
 }
