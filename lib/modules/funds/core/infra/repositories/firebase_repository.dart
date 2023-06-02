@@ -14,7 +14,7 @@ class FirebaseFundsRepository implements FundsRepository {
 
   @override
   Future<List<FundEntity>> getAllFunds() async {
-    // try {
+    try {
       List<FundEntity> list = [];
       QuerySnapshot queryCreditSnapshot = await _docFundsRef.get();
       queryCreditSnapshot.docs
@@ -24,11 +24,11 @@ class FirebaseFundsRepository implements FundsRepository {
           .toList();
       list.sort((a, b) => b.order.compareTo(a.order));
       return list;
-    // } on FailureNetwork catch (_) {
-    //   rethrow;
-    // } catch (err, stack) {
-    //   throw FailureApp(message: err.toString(), stackTrace: stack);
-    // }
+    } on FailureNetwork catch (_) {
+      rethrow;
+    } catch (err, stack) {
+      throw FailureApp(message: err.toString(), stackTrace: stack);
+    }
   }
 
   @override

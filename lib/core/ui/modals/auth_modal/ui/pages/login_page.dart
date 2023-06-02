@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
             hint: 'Telefone ou Email',
             textInputType: TextInputType.emailAddress,
             controller: _controller.emailOrPhoneTextController,
-            validator: (v) => Validators.validateEmailAndPhone(v),
+            validator: (v) => Validators.validateEmail(v),
             onChanged: _controller.emailOrPhoneField,
             backgroundColor: Colors.transparent,
           ),

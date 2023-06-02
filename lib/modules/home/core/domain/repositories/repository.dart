@@ -17,4 +17,5 @@ abstract class HomeRepository {
   Future<void> createTransaction(TransactionEntity transaction);
   Future<void> updateTransaction(TransactionEntity transaction);
   Future<void> deleteTransaction(TransactionEntity transaction);
+  Future<List<UserEntity>> getAllUsers();
 }

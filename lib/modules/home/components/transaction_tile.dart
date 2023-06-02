@@ -1,4 +1,4 @@
-import 'package:flutter/gestures.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -18,9 +18,28 @@ class TransactionTile extends StatefulWidget {
 }
 
 class _TransactionTileState extends State<TransactionTile> {
-  bool deleteLoading = false;
-  bool updateLoading = false;
+  bool _deleteLoading = false;
+  bool _approveLoading = false;
+  bool _postponeLoading = false;
+
+  late bool _isApproved;
+  late bool _isPostpone;
+
   final HomeController _controller = Get.find();
+
+  @override
+  void initState() {
+    _isApproved = widget.transaction.approvedDate != null;
+    _isPostpone = widget.transaction.postponeDate != null;
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant TransactionTile oldWidget) {
+    _isApproved = widget.transaction.approvedDate != null;
+    _isPostpone = widget.transaction.postponeDate != null;
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,118 +49,8 @@ class _TransactionTileState extends State<TransactionTile> {
         key: Key(widget.transaction.id),
         direction: _defineDirection(),
         confirmDismiss: _confirmDismiss,
-        secondaryBackground: DecoratedBox(
-          decoration: BoxDecoration(
-            color: ThemeAdapter(context).error,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          deleteLoading ? 'APAGANDO...' : 'APAGAR',
-                          style: ThemeAdapter(context).bodySmall.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: ThemeAdapter(context).customColors.white,
-                              ),
-                        ),
-                        Text(
-                          widget.transaction.description,
-                          style: ThemeAdapter(context).bodySmall.copyWith(
-                                color: ThemeAdapter(context).customColors.white,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: const Icon(
-                      LineAwesome.trash_alt,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              Visibility(
-                visible: deleteLoading,
-                child: SizedBox(
-                  height: 60,
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.transparent,
-                    color: ThemeAdapter(context).customColors.white!.withOpacity(0.3),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        background: DecoratedBox(
-          decoration: BoxDecoration(
-            color: ThemeAdapter(context).customColors.blue100,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    child: const Icon(
-                      LineAwesome.check_double_solid,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          updateLoading ? 'APROVANDO...' : 'APROVAR',
-                          style: ThemeAdapter(context).bodySmall.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: ThemeAdapter(context).customColors.white,
-                              ),
-                        ),
-                        Text(
-                          widget.transaction.description,
-                          style: ThemeAdapter(context).bodySmall.copyWith(
-                                color: ThemeAdapter(context).customColors.white,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
-              Visibility(
-                visible: updateLoading,
-                child: SizedBox(
-                  height: 60,
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.transparent,
-                    color: ThemeAdapter(context).customColors.white!.withOpacity(0.3),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
+        secondaryBackground: _buildDeleteBg(context),
+        background: _buildBg(context),
         child: Container(
           height: 100,
           decoration: BoxDecoration(
@@ -156,6 +65,7 @@ class _TransactionTileState extends State<TransactionTile> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         widget.transaction.description,
@@ -194,20 +104,25 @@ class _TransactionTileState extends State<TransactionTile> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        widget.transaction.approvedDate.isEmpty
-                            ? 'PENDENTE'
-                            : '${widget.transaction.isPurchase ? '+' : '-'} ${widget.transaction.price.toRealFormat()}',
+                        _isPostpone
+                            ? 'ADIADO'
+                            : !_isApproved
+                                ? 'PENDENTE'
+                                : '${widget.transaction.isPurchase ? '+' : '-'} '
+                                    '${widget.transaction.price.toRealFormat()}',
                         style: ThemeAdapter(context).bodyMedium.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: widget.transaction.approvedDate.isEmpty
+                              color: _isPostpone
                                   ? ThemeAdapter(context).customColors.grey500
-                                  : widget.transaction.isPurchase
-                                      ? ThemeAdapter(context).customColors.red
-                                      : ThemeAdapter(context).customColors.successColor,
+                                  : !_isApproved
+                                      ? ThemeAdapter(context).customColors.grey500
+                                      : widget.transaction.isPurchase
+                                          ? ThemeAdapter(context).customColors.red
+                                          : ThemeAdapter(context).customColors.successColor,
                             ),
                       ),
                       Visibility(
-                        visible: widget.transaction.approvedDate.isEmpty,
+                        visible: _isPostpone || !_isApproved,
                         replacement: Text(
                           'aprovado',
                           style: ThemeAdapter(context).bodySmall.copyWith(
@@ -215,7 +130,8 @@ class _TransactionTileState extends State<TransactionTile> {
                               color: ThemeAdapter(context).customColors.blue100),
                         ),
                         child: Text(
-                          '${widget.transaction.isPurchase ? '+' : '-'} ${widget.transaction.price.toRealFormat()}',
+                          '${!_isPostpone && widget.transaction.isPurchase ? '+' : '-'} '
+                          '${widget.transaction.price.toRealFormat()}',
                           style: ThemeAdapter(context).bodySmall.copyWith(
                               fontWeight: FontWeight.bold,
                               color: ThemeAdapter(context).customColors.grey500),
@@ -232,22 +148,203 @@ class _TransactionTileState extends State<TransactionTile> {
     );
   }
 
+  Widget _buildBg(BuildContext context) {
+    return Visibility(
+      visible: !_isApproved,
+      replacement: DecoratedBox(
+        decoration: BoxDecoration(
+          color: ThemeAdapter(context).customColors.blue100,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: const Icon(
+                    LineAwesome.arrow_right_solid,
+                    color: Colors.white,
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _postponeLoading ? 'ADIANDO...' : 'ADIAR',
+                        style: ThemeAdapter(context).bodySmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: ThemeAdapter(context).customColors.white,
+                            ),
+                      ),
+                      Text(
+                        widget.transaction.description,
+                        style: ThemeAdapter(context).bodySmall.copyWith(
+                              color: ThemeAdapter(context).customColors.white,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Visibility(
+              visible: _postponeLoading,
+              child: SizedBox(
+                height: 60,
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.transparent,
+                  color: ThemeAdapter(context).customColors.white!.withOpacity(0.3),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: ThemeAdapter(context).customColors.blue100,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: const Icon(
+                    LineAwesome.check_double_solid,
+                    color: Colors.white,
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _approveLoading ? 'APROVANDO...' : 'APROVAR',
+                        style: ThemeAdapter(context).bodySmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: ThemeAdapter(context).customColors.white,
+                            ),
+                      ),
+                      Text(
+                        widget.transaction.description,
+                        style: ThemeAdapter(context).bodySmall.copyWith(
+                              color: ThemeAdapter(context).customColors.white,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Visibility(
+              visible: _approveLoading,
+              child: SizedBox(
+                height: 60,
+                child: LinearProgressIndicator(
+                  backgroundColor: Colors.transparent,
+                  color: ThemeAdapter(context).customColors.white!.withOpacity(0.3),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  DecoratedBox _buildDeleteBg(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: ThemeAdapter(context).error,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _deleteLoading ? 'APAGANDO...' : 'APAGAR',
+                      style: ThemeAdapter(context).bodySmall.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: ThemeAdapter(context).customColors.white,
+                          ),
+                    ),
+                    Text(
+                      widget.transaction.description,
+                      style: ThemeAdapter(context).bodySmall.copyWith(
+                            color: ThemeAdapter(context).customColors.white,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: const Icon(
+                  LineAwesome.trash_alt,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          Visibility(
+            visible: _deleteLoading,
+            child: SizedBox(
+              height: 60,
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.transparent,
+                color: ThemeAdapter(context).customColors.white!.withOpacity(0.3),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Future<bool?> _confirmDismiss(dir) async {
     bool confirm = await _confirmProcess(
-      dir == DismissDirection.endToStart,
+      dir == DismissDirection.endToStart
+          ? 'EXCLUIR'
+          : dir == DismissDirection.startToEnd && !_isApproved
+              ? 'APROVAR'
+              : 'ADIAR',
     );
     if (!confirm) return confirm;
     if (dir == DismissDirection.endToStart) return await _deleteTransaction();
-    return await _updateTransaction();
+    if (widget.transaction.approvedDate != null) return await _postponeTransaction();
+    return await _approveTransaction();
   }
 
   DismissDirection _defineDirection() {
     return widget.transaction.failure != null
         ? DismissDirection.none
-        : widget.transaction.approvedDate.isEmpty &&
-                _controller.authUserController.userLogged!.isAdmin
+        : _controller.authUserController.userLogged!.isAdmin &&
+                (!_isApproved ||
+                    (!_isPostpone && _controller.summariesFromFund.length > _controller.page + 1))
             ? DismissDirection.horizontal
-            : widget.transaction.approvedDate.isNotEmpty &&
+            : widget.transaction.approvedDate == null ||
                     _controller.authUserController.userLogged!.isAdmin
                 ? DismissDirection.endToStart
                 : DismissDirection.none;
@@ -255,25 +352,38 @@ class _TransactionTileState extends State<TransactionTile> {
 
   Future<bool> _deleteTransaction() async {
     bool success = false;
-    setState(() => deleteLoading = true);
+    setState(() => _deleteLoading = true);
     success = await _controller.deleteTransaction(widget.transaction);
-    if (!success) setState(() => deleteLoading = false);
+    if (!success) setState(() => _deleteLoading = false);
     return success;
   }
 
-  Future<bool> _updateTransaction() async {
-    bool success = false;
-    setState(() => updateLoading = true);
-    widget.transaction.approvedDate = AppConstants().todayNow.toString();
-    success = await _controller.updateTransaction(widget.transaction);
-    if (!success) setState(() => updateLoading = false);
+  Future<bool> _approveTransaction() async {
+    setState(() => _approveLoading = true);
+    widget.transaction.approvedDate = Timestamp.fromDate(AppConstants().todayNow);
+    await _controller.updateTransaction(widget.transaction);
+    setState(() {
+      _isApproved = true;
+      _approveLoading = false;
+    });
     return false;
   }
 
-  Future<bool> _confirmProcess(bool exclude) async {
+  Future<bool> _postponeTransaction() async {
+    setState(() => _postponeLoading = true);
+    widget.transaction.postponeDate = Timestamp.fromDate(AppConstants().todayNow);
+    await _controller.postponeTransaction(widget.transaction);
+    setState(() {
+      _isPostpone = true;
+      _postponeLoading = false;
+    });
+    return false;
+  }
+
+  Future<bool> _confirmProcess(String action) async {
     return await CustomQuestionModal.show(
       title: 'Tem certeza?',
-      subtitle: 'Tem certeza que deseja ${exclude ? 'EXCLUIR' : 'APROVAR'}'
+      subtitle: 'Tem certeza que deseja $action'
           ' a transação ${widget.transaction.description.toUpperCase()}.',
     );
   }

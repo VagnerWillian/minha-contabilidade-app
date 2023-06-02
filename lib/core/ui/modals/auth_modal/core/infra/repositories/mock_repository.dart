@@ -8,8 +8,9 @@ class MockAuthModalRepository implements AuthModalRepository {
     return UserProfile(
       active: true,
       name: 'Usuario',
+      email: 'teste@teste.com',
+      cpf: '123.456.789-10',
       photo: '',
-      pushToken: '',
       uid: '',
       cards: ['digio'],
       isAdmin: true

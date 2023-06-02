@@ -9,8 +9,8 @@ import 'components/components.dart';
 
 class MainPage extends StatelessWidget {
   MainPage({super.key});
-
   final _drawerController = ZoomDrawerController();
+  final _keyScaffold = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,9 @@ class MainPage extends StatelessWidget {
       drawerShadowsBackgroundColor: AppColors.grey500,
       menuScreen: const MenuScreen(),
       mainScreen: Scaffold(
+        key: _keyScaffold,
         backgroundColor: ThemeAdapter(context).scaffoldBackgroundColor,
+        endDrawer: const UsersDrawer(),
         appBar: AppBar(
           backgroundColor: ThemeAdapter(context).scaffoldBackgroundColor,
           elevation: 0,
@@ -37,7 +39,7 @@ class MainPage extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: ()=>_keyScaffold.currentState?.openEndDrawer(),
               icon: const Icon(Icons.face, color: Colors.black),
             )
           ],

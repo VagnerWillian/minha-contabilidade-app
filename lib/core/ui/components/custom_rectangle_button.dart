@@ -7,12 +7,13 @@ class CustomRectangleButton extends StatelessWidget {
   final Size? size;
   final TextStyle? labelStyle;
   final Alignment? textAlign;
-  final IconButton? suffixIcon;
+  final Widget? suffixIcon;
   final Widget? prefixIcon;
   final Color? background;
   final BorderSide? borderStyle;
   final Color? splash;
   final double? borderRadius;
+  final bool centerPreffixIcon;
 
   const CustomRectangleButton({
     super.key,
@@ -26,6 +27,7 @@ class CustomRectangleButton extends StatelessWidget {
     this.background,
     this.splash,
     this.borderRadius,
+    this.centerPreffixIcon = false,
     this.borderStyle = BorderSide.none,
   });
 
@@ -48,12 +50,15 @@ class CustomRectangleButton extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment:
-            suffixIcon != null ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
+        mainAxisAlignment: suffixIcon != null
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.start,
         children: [
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: centerPreffixIcon
+                  ? MainAxisAlignment.center
+                  : MainAxisAlignment.spaceBetween,
               children: [
                 Visibility(
                   visible: prefixIcon != null,

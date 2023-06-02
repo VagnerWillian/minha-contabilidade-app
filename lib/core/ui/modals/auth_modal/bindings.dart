@@ -17,24 +17,9 @@ class AuthModalBindings implements Bindings {
       },
     );
 
-    // Services and Adapters
-    await Get.putAsync<AuthenticationAdapter>(
-      () async {
-        if (AppConstants.mockApp) return MockAuthentication();
-        return FirebaseAuthentication();
-      },
-    );
-    await Get.putAsync<AuthenticationServiceInterface>(
-        () async => AuthenticationService(Get.find()));
-    await Get.putAsync<LocalAuthServiceInterface>(
-      () async => LocalAuthService(),
-    );
-
     // UseCases
     await Get.putAsync<LoginWithEmailAndPassUseCaseInterface>(
         () async => LoginWithEmailAndPassUseCase(Get.find()));
-    await Get.putAsync<LoginWithPhoneAndPassUseCaseInterface>(
-        () async => LoginWithPhoneAndPassUseCase(Get.find()));
     await Get.putAsync<SendEmailConfirmationUseCaseInterface>(
         () async => SendEmailConfirmationUseCase(Get.find()));
     await Get.putAsync<SignOutUseCaseInterface>(
@@ -46,7 +31,6 @@ class AuthModalBindings implements Bindings {
 
     await Get.putAsync<AuthModalController>(
       () async => AuthModalController(
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),

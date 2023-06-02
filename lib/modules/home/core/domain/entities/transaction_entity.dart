@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../../core/core.dart';
 
 abstract class SummaryTransactionEntity{
@@ -23,7 +25,8 @@ abstract class TransactionEntity{
   late String description;
   late String date;
   late bool isPurchase;
-  late String approvedDate;
+  late Timestamp? approvedDate;
+  late Timestamp? postponeDate;
   late num price;
   Map<String, dynamic> get toJson;
   void generateId();

@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../../controllers/controllers.dart';
 import '../core.dart';
+import '../ui/modals/auth_modal/core/domain/repositories/repositories.dart';
+import '../ui/modals/auth_modal/core/infra/repositories/repositories.dart';
 
 class AppBindings implements Bindings {
   @override
@@ -17,6 +19,13 @@ class AppBindings implements Bindings {
       })
       ..put<NetworkAdapter>(GetConnectNetwork(Get.find(), Get.find()))
       ..put<NetworkServiceInterface>((NetworkService(Get.find())))
-      ..put<RemoteConfigServiceInterface>(RemoteConfigService(Get.find()));
+      ..lazyPut<AuthenticationAdapter>(() {
+        if (AppConstants.mockApp) return MockAuthentication();
+        return FirebaseAuthentication();
+      })
+      ..putAsync<AuthenticationServiceInterface>(() async => AuthenticationService(Get.find()))
+      ..putAsync<LocalAuthServiceInterface>(() async => LocalAuthService())
+      ..put<RemoteConfigServiceInterface>(RemoteConfigService(Get.find()))
+      ;
   }
 }

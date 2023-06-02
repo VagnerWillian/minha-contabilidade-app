@@ -20,10 +20,12 @@ class HomeBindings implements Bindings {
             Get.find(),
             Get.find(),
             Get.find(),
+            Get.find(),
           ))
 
       //UseCases
       ..lazyReplace(() => GetAllFundsUseCase(Get.find()))
+      ..lazyReplace(() => GetAllUsersUseCase(Get.find()))
       ..lazyPut(() => GetSummaryFromFund(Get.find()))
       ..lazyPut(() => CreateSummaryFundUseCase(Get.find()))
       ..lazyPut(() => UpdateSummaryFundUseCase(Get.find()))

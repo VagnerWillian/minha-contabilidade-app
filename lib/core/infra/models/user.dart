@@ -3,13 +3,16 @@ import '../../core.dart';
 class UserProfile implements UserEntity {
 
   @override
-  late final bool active;
+  late bool active;
 
   @override
   late final bool isAdmin;
 
   @override
   late final String name;
+
+  @override
+  late final String cpf;
 
   @override
   late final String photo;
@@ -33,6 +36,7 @@ class UserProfile implements UserEntity {
   Map<String, dynamic> get toJson => {
         'uid': uid,
         'nome': name,
+        'cpf': cpf,
         'email': email,
         'ativo': active,
         'admin': isAdmin,
@@ -46,8 +50,11 @@ class UserProfile implements UserEntity {
     required this.active,
     required this.isAdmin,
     required this.name,
+    required this.email,
+    required this.cpf,
     required this.photo,
-    required this.pushToken,
+    this.pushToken='',
+    this.deviceId='',
     required this.uid,
     required this.cards,
   });
@@ -55,6 +62,7 @@ class UserProfile implements UserEntity {
   UserProfile.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
     name = json['nome'];
+    cpf = json['cpf'];
     email = json['email'];
     active = json['ativo'];
     isAdmin = json['admin'];

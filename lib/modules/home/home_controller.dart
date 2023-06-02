@@ -20,6 +20,7 @@ class HomeController extends GetxController with MessagesMixin {
   final CreateTransactionUseCase _createTransactionUseCase;
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final DeleteTransactionUseCase _deleteTransactionUseCase;
+  final GetAllUsersUseCase _getAllUsersUseCase;
 
   HomeController(
     this.authUserController,
@@ -31,6 +32,7 @@ class HomeController extends GetxController with MessagesMixin {
     this._createTransactionUseCase,
     this._updateTransactionUseCase,
     this._deleteTransactionUseCase,
+    this._getAllUsersUseCase,
   );
 
   final List<SummaryTransactionEntity> _summaries = [];
@@ -40,28 +42,47 @@ class HomeController extends GetxController with MessagesMixin {
   final funds = <FundEntity>[].obs;
   final summariesFromFund = <SummaryTransactionEntity>[].obs;
   final transactions = <TransactionEntity>[].obs;
+  final users = RxList<UserEntity>();
   final selectedFund = Rxn<FundEntity>();
   final loadingFunds = true.obs;
   final loadingSummariesTransactions = true.obs;
   final loadingTransactions = true.obs;
   final _message = Rxn<MessageModel>();
+  final selectedUser = Rxn<UserEntity>();
 
   DateTime todayNow = DateTime.now();
   int page = 0;
-  CancellationToken? transactionCancellationToken;
+  CancellationToken? transactionFromUserCancellationToken;
+  CancellationToken? transactionAllUserCancellationToken;
   int get initialIndex => page > summariesFromFund.length - 1 ? summariesFromFund.length - 1 : page;
 
   @override
   Future<void> onInit() async {
+    selectedUser(authUserController.userLogged!);
     pageController = PageController();
     messageListener(_message);
-    await getAllFunds();
-    getAllSummariesFromFunds();
+    getAllDataFromSelectedUser();
     super.onInit();
   }
 
+  Future<void> getAllDataFromSelectedUser() async {
+    await getAllUsers();
+    await getAllFunds();
+    await getAllSummariesFromFunds();
+    changeCard(0);
+  }
+
   Future<void> handleTabChange() async {
-    if (!tabController!.indexIsChanging) getTransactions(summariesFromFund[tabController!.index]);
+    if (!tabController!.indexIsChanging) {
+      // if (!selectedUser.value!.isAdmin) {
+        await getTransactionsFromUser(
+          summariesFromFund[tabController!.index],
+          selectedUser.value!.uid,
+        );
+      // } else {
+      //   await getTransactionsFromAllUsers(summariesFromFund[tabController!.index]);
+      // }
+    }
     page = tabController!.index;
   }
 
@@ -84,26 +105,31 @@ class HomeController extends GetxController with MessagesMixin {
     funds
       ..clear()
       ..addAll(await _getAllFundsUseCase(
-        authUserController.userLogged!.isAdmin,
-        authUserController.userLogged!.cards,
+        selectedUser.value!.isAdmin,
+        selectedUser.value!.cards,
       ))
       ..sort((a, b) => a.active ? -1 : 1);
     loadingFunds(false);
   }
 
-  void getAllSummariesFromFunds() {
+  Future<void> getAllSummariesFromFunds() async {
     if (funds.isNotEmpty && funds.first.failure != null) {
       _defineError(funds.first.failure!);
-    }
-    funds.map((f) async {
+    } else {
       _summaries.clear();
-      await getSummary(f.id);
-      return f;
-    }).toList();
+      await Future.wait(funds.map((f) async {
+        // if(!selectedUser.value!.isAdmin) {
+          await getSummaryFromUser(f.id, selectedUser.value!.uid);
+        // }else{
+        //   await getSummaryAllUsers(f.id);
+        // }
+        return f;
+      }).toList());
+    }
   }
 
-  void _getTransactionsFromFirstSummary() {
-    var item = summariesFromFund.singleWhere(
+  Future<void> _getTransactionsFromFirstSummary() async {
+    var summary = summariesFromFund.singleWhere(
       (smr) => AppConstants().todayNow.isDateBetween(
             selectedFund.value!.closeDate
                 .getFirstDate(smr.closeDate.getPreviousMonth())
@@ -111,8 +137,23 @@ class HomeController extends GetxController with MessagesMixin {
             smr.closeDate,
           ),
     );
-    page = summariesFromFund.indexOf(item);
-    getTransactions(item);
+    page = summariesFromFund.indexOf(summary);
+
+    // if (!selectedUser.value!.isAdmin) {
+      await getTransactionsFromUser(summary, selectedUser.value!.uid);
+    // } else {
+    //   await getTransactionsFromAllUsers(summary);
+    // }
+  }
+
+  Future<void> getTransactionsFromAllUsers(SummaryTransactionEntity summary) async {
+    transactionAllUserCancellationToken?.cancel();
+    transactionAllUserCancellationToken = CancellationToken();
+    await Future.wait(users.map((user) async {
+      await getTransactionsFromUser(summary, user.uid, cancellable: false);
+      return user;
+    }).toList())
+        .asCancellable(transactionAllUserCancellationToken);
   }
 
   void _getListSummariesFromFund() {
@@ -123,12 +164,24 @@ class HomeController extends GetxController with MessagesMixin {
       }).toList());
   }
 
-  Future<void> getSummary(String fundId) async {
+  Future<void> getSummaryFromUser(String fundId, String uid) async {
     loadingSummariesTransactions(true);
-    print('BUSCANDO SUMÁRIOS...');
+    print('BUSCANDO SUMÁRIOS DO USUARIO ${uid.toUpperCase()}... ');
     _summaries.addAll(
-      await _getAllSummaryFromFundUseCase(fundId, authUserController.userLogged!.uid),
+      await _getAllSummaryFromFundUseCase(fundId, uid),
     );
+    loadingSummariesTransactions(false);
+  }
+
+  Future<void> getSummaryAllUsers(String fundId) async {
+    loadingSummariesTransactions(true);
+    print('BUSCANDO SUMÁRIOS DE TODOS USUARIO... ');
+    var list = [];
+    await Future.wait(users.map((user) async {
+      list.addAll(await _getAllSummaryFromFundUseCase(fundId, user.uid));
+      return user;
+    }).toList());
+    print(list.length);
     loadingSummariesTransactions(false);
   }
 
@@ -191,7 +244,7 @@ class HomeController extends GetxController with MessagesMixin {
     SummaryTransactionEntity newSmr = SummaryTransaction.fromJson(data);
     try {
       await _createSummaryFundUseCase(
-        authUserController.userLogged!.uid,
+        selectedUser.value!.uid,
         selectedFund.value!.id,
         data,
       );
@@ -204,7 +257,7 @@ class HomeController extends GetxController with MessagesMixin {
   Future<bool> _updateSummary() async {
     try {
       await _updateSummaryFundUseCase(
-        authUserController.userLogged!.uid,
+        selectedUser.value!.uid,
         summariesFromFund[page],
       );
       return true;
@@ -214,19 +267,23 @@ class HomeController extends GetxController with MessagesMixin {
     }
   }
 
-  Future<void> getTransactions(SummaryTransactionEntity summary) async {
-    print('BUSCANDO TRANSAÇÕES');
-    transactionCancellationToken?.cancel();
-    transactionCancellationToken = CancellationToken();
+  Future<void> getTransactionsFromUser(
+    SummaryTransactionEntity summary,
+    String uid, {
+    bool cancellable = true,
+  }) async {
+    print('BUSCANDO TRANSAÇÕES DO USUARIO $uid');
+    if (cancellable) transactionFromUserCancellationToken?.cancel();
+    transactionFromUserCancellationToken = CancellationToken();
     try {
       loadingTransactions(true);
       transactions
         ..clear()
         ..addAll(await _getAllTransactionsUseCase(
-          authUserController.userLogged!.uid,
+          uid,
           summary.id,
           selectedFund.value!.id,
-        ).asCancellable(transactionCancellationToken));
+        ).asCancellable(transactionFromUserCancellationToken));
       reorderTransactionsList();
     } catch (_) {}
 
@@ -236,13 +293,15 @@ class HomeController extends GetxController with MessagesMixin {
     loadingTransactions(false);
   }
 
-  Future<void> createTransaction(TransactionEntity transaction) async {
+  Future<void> createTransaction(TransactionEntity transaction,
+      {SummaryTransactionEntity? summary}) async {
     print('CRIANDO TRANSAÇÃO...');
     try {
+      var onSummary = summary ?? summariesFromFund[page];
       await _createTransactionUseCase(transaction);
-      transactions.insert(0, transaction);
-      summariesFromFund[page].totally += transaction.price;
-      if (!await _updateSummary()) summariesFromFund[page].totally -= transaction.price;
+      if (onSummary == summariesFromFund[page]) transactions.insert(0, transaction);
+      onSummary.totally += transaction.price;
+      if (!await _updateSummary()) onSummary.totally -= transaction.price;
     } on Failure catch (err) {
       _defineError(err);
     }
@@ -253,8 +312,10 @@ class HomeController extends GetxController with MessagesMixin {
     try {
       await _deleteTransactionUseCase(transaction);
       transactions.removeWhere((trs) => trs.id == transaction.id);
-      summariesFromFund[page].totally -= transaction.price;
-      if (!await _updateSummary()) summariesFromFund[page].totally += transaction.price;
+      if (transaction.postponeDate == null) {
+        summariesFromFund[page].totally -= transaction.price;
+        if (!await _updateSummary()) summariesFromFund[page].totally += transaction.price;
+      }
       return true;
     } on Failure catch (err) {
       _defineError(err);
@@ -274,11 +335,55 @@ class HomeController extends GetxController with MessagesMixin {
     }
   }
 
+  Future<bool> postponeTransaction(TransactionEntity transaction) async {
+    print('ADIANDO TRANSAÇÃO...');
+    try {
+      // Salva os dados da transação do resumo atual
+      await _updateTransactionUseCase(transaction);
+      summariesFromFund[page].totally -= transaction.price;
+      if (!await _updateSummary()) summariesFromFund[page].totally += transaction.price;
+
+      // Copia a transação para a próxima fatura
+      var newTransaction = TransactionFund.copyFromTransaction(transaction);
+      var nextSummary = summariesFromFund[page + 1];
+
+      newTransaction
+        ..summaryId = nextSummary.id
+        ..postponeDate = null;
+      await createTransaction(newTransaction, summary: nextSummary);
+      tabController?.animateTo(page + 1, duration: const Duration(seconds: 1));
+
+      reorderTransactionsList();
+      return true;
+    } on Failure catch (err) {
+      _defineError(err);
+      return false;
+    } on RangeError {
+      _defineError(
+        FailureApp(
+          message: 'Não é possível adiar esta transação ainda...',
+        ),
+      );
+      return false;
+    }
+  }
+
+  Future<void> getAllUsers() async {
+    try {
+      var list = await _getAllUsersUseCase();
+      users
+        ..clear()
+        ..addAll(list);
+    } on Failure catch (err) {
+      _defineError(err);
+    }
+  }
+
   void reorderTransactionsList() {
     transactions.sort((a, b) {
-      if (a.approvedDate.isEmpty && b.approvedDate.isNotEmpty) {
+      if (a.approvedDate == null && b.approvedDate != null) {
         return -1;
-      } else if (a.approvedDate.isNotEmpty && b.approvedDate.isEmpty) {
+      } else if (a.approvedDate != null && b.approvedDate == null) {
         return 1;
       } else {
         return b.date.compareTo(a.date);
@@ -293,15 +398,13 @@ class HomeController extends GetxController with MessagesMixin {
         message: err.message,
         failureNetwork: err,
       ));
-    } else if (err is FailureFirestore) {
+    } else if (err is FailureFirebase) {
       _message(MessageModel.error(
         title: err.error,
         message: err.message,
       ));
     } else if (err is FailureApp) {
-      _message(MessageModel.error(
-        title: err.error,
-      ));
+      _message(MessageModel.error(title: err.error, message: err.message));
     }
   }
 }

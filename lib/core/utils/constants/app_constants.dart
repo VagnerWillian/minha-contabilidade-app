@@ -1,7 +1,7 @@
 class AppConstants {
   static bool mockApp = false;
-  DateTime todayNow = DateTime.now();
-  // static final DateTime todayNow = DateTime(2023,05,25);
+  // DateTime todayNow = DateTime.now();
+  DateTime todayNow = DateTime(2023,07,03);
 
   /// [Language App]
   static String defaultLanguageApp = 'pt_BR';

@@ -20,6 +20,7 @@ class CustomTextField extends StatefulWidget {
   final bool enabled;
   final bool textBold;
   final Color? textColor;
+  final TextCapitalization textCapitalization;
 
   const CustomTextField({
     super.key,
@@ -38,6 +39,7 @@ class CustomTextField extends StatefulWidget {
     this.autoValidate = false,
     this.showObscureText = true,
     this.enabled = true,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -105,6 +107,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             keyboardType: widget.textInputType,
             textAlign: TextAlign.center,
             validator: widget.validator,
+            textCapitalization: widget.textCapitalization,
             autovalidateMode:
                 widget.autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
             initialValue: widget.initialValue,

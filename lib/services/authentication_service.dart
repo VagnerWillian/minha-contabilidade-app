@@ -11,11 +11,6 @@ class AuthenticationService implements AuthenticationServiceInterface{
   }
 
   @override
-  Future<AuthCredentialsEntity> signInWithPhoneAndPassword(String phoneNumber){
-    return _adapter.signInWithPhoneAndPassword(phoneNumber);
-  }
-
-  @override
   Future<void> sendEmailVerification() async {
     return _adapter.sendEmailVerification();
   }
@@ -23,5 +18,10 @@ class AuthenticationService implements AuthenticationServiceInterface{
   @override
   Future<void> signOut() async{
     return await _adapter.signOut();
+  }
+
+  @override
+  Future<AuthCredentialsEntity> createAccountWithEmailAndPassword(String email, String pass) async {
+    return await _adapter.createAccountWithEmailAndPassword(email, pass);
   }
 }

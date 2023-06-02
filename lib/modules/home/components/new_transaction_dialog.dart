@@ -94,8 +94,8 @@ class _NewTransactionDialogState extends State<NewTransactionDialog> {
   Future<void> create() async {
     var newTransaction = TransactionFund(
       idFund: _controller.selectedFund.value!.id,
-      userName: _controller.authUserController.userLogged!.name,
-      userId: _controller.authUserController.userLogged!.uid,
+      userName: _controller.selectedUser.value!.name,
+      userId: _controller.selectedUser.value!.uid,
       isPurchase: widget.isPurchase,
       date: DateTime.now().toString(),
       price: _priceController.text.tryConvertRealToDouble(),

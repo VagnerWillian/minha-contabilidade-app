@@ -10,6 +10,6 @@ void main()async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
   );
-  AppBindings().dependencies();
+  await AppBindings().dependencies();
   runApp(const AppWidget());
 }

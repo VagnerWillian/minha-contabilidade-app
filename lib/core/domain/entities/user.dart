@@ -2,6 +2,7 @@ abstract class UserEntity{
   late String uid;
   late String name;
   late String email;
+  late String cpf;
   late bool active;
   late bool isAdmin;
   late String? pushToken;

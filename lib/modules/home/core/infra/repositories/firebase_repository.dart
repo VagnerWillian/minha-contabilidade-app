@@ -8,7 +8,8 @@ import '../models/models.dart';
 class FirebaseHomeRepository implements HomeRepository {
 
   final _docCardsRef = FirebaseFirestore.instance.collection('fundos');
-  final _extractsRef = FirebaseFirestore.instance.collection('extrato');
+  final _extractsRef = FirebaseFirestore.instance.collection('faturas');
+  final _usersRef = FirebaseFirestore.instance.collection('usuarios');
 
   @override
   Future<List<FundEntity>> getAllFunds() async {
@@ -25,7 +26,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (err) {
       return [Fund.failure(err)];
     } on FirebaseException catch (_) {
-      return [Fund.failure(FailureFirestore())];
+      return [Fund.failure(FailureFirebase())];
     } catch (err, stack) {
       return [
         Fund.failure(
@@ -40,7 +41,7 @@ class FirebaseHomeRepository implements HomeRepository {
     try {
       QuerySnapshot summariesSnapshot = await _extractsRef
           .doc(uid)
-          .collection('resumos')
+          .collection('detalhes')
           .doc('fundos')
           .collection(fundId)
           .orderBy('ano', descending: false)
@@ -54,7 +55,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (err) {
       return [SummaryTransaction.failure(err, fundId)];
     } on FirebaseException catch (_) {
-      return [SummaryTransaction.failure(FailureFirestore(), fundId)];
+      return [SummaryTransaction.failure(FailureFirebase(), fundId)];
     } catch (err, stack) {
       return [
         SummaryTransaction.failure(
@@ -74,7 +75,7 @@ class FirebaseHomeRepository implements HomeRepository {
     try {
       await _extractsRef
           .doc(uid)
-          .collection('resumos')
+          .collection('detalhes')
           .doc('fundos')
           .collection(fundId)
           .doc(data['id'])
@@ -82,7 +83,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (_) {
       rethrow;
     } on FirebaseException catch (_) {
-      throw FailureFirestore();
+      throw FailureFirebase();
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),
@@ -101,7 +102,7 @@ class FirebaseHomeRepository implements HomeRepository {
     try {
       await _extractsRef
           .doc(uid)
-          .collection('resumos')
+          .collection('detalhes')
           .doc('fundos')
           .collection(summary.idFund)
           .doc(summary.id)
@@ -113,7 +114,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (_) {
       rethrow;
     } on FirebaseException {
-      throw FailureFirestore();
+      throw FailureFirebase();
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),
@@ -147,9 +148,9 @@ class FirebaseHomeRepository implements HomeRepository {
           .toList();
       return list;
     } on FailureNetwork catch (_) {
-      return [TransactionFund.failure(FailureFirestore())];
+      return [TransactionFund.failure(FailureFirebase())];
     } on FirebaseException catch (_) {
-      return [TransactionFund.failure(FailureFirestore())];
+      return [TransactionFund.failure(FailureFirebase())];
     } catch (err, stack) {
       return [
         TransactionFund.failure(
@@ -179,7 +180,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (_) {
       rethrow;
     } on FirebaseException catch (_) {
-      throw FailureFirestore();
+      throw FailureFirebase();
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),
@@ -205,7 +206,7 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (_) {
       rethrow;
     } on FirebaseException {
-      throw FailureFirestore();
+      throw FailureFirebase();
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),
@@ -231,7 +232,37 @@ class FirebaseHomeRepository implements HomeRepository {
     } on FailureNetwork catch (_) {
       rethrow;
     } on FirebaseException {
-      throw FailureFirestore();
+      throw FailureFirebase();
+    } catch (err, stack) {
+      throw FailureApp(
+        message: err.toString(),
+        stackTrace: stack,
+      );
+    }
+  }
+
+  @override
+  Future<List<UserEntity>> getAllUsers() async {
+    print('CARREGANDO USUARIOS...');
+    try {
+      List<UserEntity> list = [];
+      QuerySnapshot queryUsers = await _usersRef.get();
+      queryUsers.docs
+          .map((doc) => list.add(UserProfile.fromJson(
+        (doc.data() as Map<String, dynamic>),
+      )))
+          .toList();
+      return list;
+    } on FailureNetwork catch (_) {
+      throw FailureNetwork(
+        error: AppConstants.firebaseErrorTitle,
+        message: 'Não foi possível carregar os usuarios',
+      );
+    } on FirebaseException catch (_) {
+      throw FailureFirebase(
+        error: AppConstants.firebaseErrorTitle,
+        message: 'Não foi possível carregar os usuarios',
+      );
     } catch (err, stack) {
       throw FailureApp(
         message: err.toString(),

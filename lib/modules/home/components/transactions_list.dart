@@ -1,4 +1,5 @@
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:contabilidade_app/modules/home/core/domain/entities/transaction_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -96,9 +97,11 @@ class _TransactionsListState extends State<TransactionsList> with TickerProvider
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text('Resumo', style: ThemeAdapter(context).titleMedium),
-                          Text('Total gasto no período de ${summary.month.name}:', style: ThemeAdapter(context).bodySmall),
+                          Text('Total gasto no período de ${summary.month.name}:',
+                              style: ThemeAdapter(context).bodySmall),
                           const SizedBox(height: 10),
-                          Text(summary.totally.toRealFormat(), style: ThemeAdapter(context).titleMedium),
+                          Text(summary.totally.toRealFormat(),
+                              style: ThemeAdapter(context).titleMedium),
                           const SizedBox(height: 10),
                           SizedBox(
                             height: 60,
@@ -106,11 +109,7 @@ class _TransactionsListState extends State<TransactionsList> with TickerProvider
                               label: 'Incluir Compra',
                               prefixIcon: const Icon(LineAwesome.shopping_bag_solid),
                               background: ThemeAdapter(context).customColors.green,
-                              onPressed: _controller.loadingTransactions.isFalse &&
-                                  (_controller.selectedFund.value!.active ||
-                                      _controller.authUserController.userLogged!.isAdmin)
-                                  ? addTransaction
-                                  : null,
+                              onPressed: _permissionForAdd(summary) ? addTransaction : null,
                             ),
                           )
                         ],
@@ -138,7 +137,7 @@ class _TransactionsListState extends State<TransactionsList> with TickerProvider
                                     TransactionTile(_controller.transactions[index]),
                                 separatorBuilder: (_, index) {
                                   if (_controller.transactions
-                                          .where((trs) => trs.approvedDate.isEmpty)
+                                          .where((trs) => trs.approvedDate == null)
                                           .length ==
                                       index + 1) {
                                     return _buildDivider();
@@ -159,6 +158,13 @@ class _TransactionsListState extends State<TransactionsList> with TickerProvider
         ),
       );
     });
+  }
+
+  bool _permissionForAdd(SummaryTransactionEntity summary) {
+    return _controller.loadingTransactions.isFalse &&
+        (AppConstants().todayNow.isBefore(summary.closeDate) &&
+                _controller.selectedFund.value!.active ||
+            _controller.authUserController.userLogged!.isAdmin);
   }
 
   Column _buildDivider() {

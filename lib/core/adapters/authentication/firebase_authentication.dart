@@ -37,9 +37,27 @@ class FirebaseAuthentication implements AuthenticationAdapter {
   }
 
   @override
-  Future<AuthCredentialsEntity> signInWithPhoneAndPassword(String phoneNumber) async {
-    await _firebaseAuth.signInWithPhoneNumber(phoneNumber);
-    return AuthCredentials(uid: '', token: '', isVerified: true);
+  Future<AuthCredentialsEntity> createAccountWithEmailAndPassword(String email, String pass) async {
+    try {
+      UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+      if (userCredential.user != null) {
+        String token = await userCredential.user!.getIdToken();
+        String uid = userCredential.user!.uid;
+        return AuthCredentials(
+          uid: uid,
+          token: token,
+          isVerified: userCredential.user!.emailVerified,
+        );
+      }
+      return AuthCredentials.failure();
+    } on FirebaseAuthException catch (e) {
+      return AuthCredentials.failure(
+        message: FirebaseConstants.translateFirebaseMessageErr(e.message),
+      );
+    }
   }
 
   @override

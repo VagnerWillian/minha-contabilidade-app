@@ -13,7 +13,7 @@ class MockAuthentication implements AuthenticationAdapter {
   }
 
   @override
-  Future<AuthCredentialsEntity> signInWithPhoneAndPassword(String phoneNumber) async {
+  Future<AuthCredentialsEntity> createAccountWithEmailAndPassword(String email, String pass) async {
     await Future.delayed(const Duration(seconds: 2));
     return AuthCredentials(token: '', uid: 'token', isVerified: verified);
   }

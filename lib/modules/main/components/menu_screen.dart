@@ -37,26 +37,24 @@ class MenuScreen extends StatelessWidget {
                 buildItemMenu(
                   LineAwesome.credit_card,
                   'Fundos',
-                  onTap: ()async {
+                  onTap: () async {
                     await Get.toNamed(AppRoutes.fundsRoute);
-                    Get.find<HomeController>().onInit();
+                    Get.find<HomeController>().getAllDataFromSelectedUser();
                   },
                 ),
-                buildItemMenu(LineAwesome.users_solid, 'Usuarios'),
+                buildItemMenu(
+                  LineAwesome.users_solid,
+                  'Usuarios',
+                  onTap: () async{
+                    await Get.toNamed(AppRoutes.usersRoute);
+                    Get.find<HomeController>().getAllDataFromSelectedUser();
+                  },
+                ),
                 buildItemMenu(LineAwesome.youtube, 'Assinaturas'),
                 const Spacer(),
-                buildItemMenu(
-                  LineAwesome.sign_out_alt_solid,
-                  'Recarregar cards',
-                  color: ThemeAdapter(context).error,
-                  onTap: ()=>Get.find<HomeController>().onInit()
-                ),
-                buildItemMenu(
-                  LineAwesome.sign_out_alt_solid,
-                  'Sair',
-                  color: ThemeAdapter(context).error,
-                  onTap: ()=>Get.find<AuthUserController>().signOut()
-                ),
+                buildItemMenu(LineAwesome.sign_out_alt_solid, 'Sair',
+                    color: ThemeAdapter(context).error,
+                    onTap: () => Get.find<AuthUserController>().signOut()),
               ],
             )),
         const Expanded(child: SizedBox.shrink()),

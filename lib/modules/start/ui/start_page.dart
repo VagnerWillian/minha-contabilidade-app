@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -102,12 +103,14 @@ class _StartPageState extends State<StartPage> {
                             RichText(
                               text: TextSpan(
                                 text: 'Não possui uma conta? ',
-                                style: ThemeAdapter(context)
-                                    .bodySmall
-                                    .copyWith(color: ThemeAdapter(context).accentSecondaryColor),
+                                style: ThemeAdapter(context).bodySmall.copyWith(
+                                      color: ThemeAdapter(context).accentSecondaryColor,
+                                    ),
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: 'Cadastre-se',
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => Get.toNamed(AppRoutes.signupRoute),
                                     style: ThemeAdapter(context).bodySmall.copyWith(
                                         color: ThemeAdapter(context).accentColor,
                                         decoration: TextDecoration.underline),

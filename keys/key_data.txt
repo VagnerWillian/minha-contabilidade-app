@@ -1,0 +1,2 @@
+alias: contabilidade_app
+senha: 467898

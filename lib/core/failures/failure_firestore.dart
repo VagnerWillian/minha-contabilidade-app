@@ -1,6 +1,6 @@
 import '../core.dart';
 
-class FailureFirestore implements Failure {
+class FailureFirebase implements Failure {
 
   @override
   late final String error;
@@ -8,7 +8,7 @@ class FailureFirestore implements Failure {
   @override
   late final String message;
 
-  FailureFirestore({
+  FailureFirebase({
     String? message,
     String? error,
   }) {

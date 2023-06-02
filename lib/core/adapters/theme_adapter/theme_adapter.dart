@@ -35,7 +35,7 @@ class ThemeAdapter {
         CustomThemeColors(
           successColor: AppColors.success,
           red: AppColors.error,
-          warningColor: AppColors.warning,
+          orange50: AppColors.warning,
           grey200: AppColors.grey200,
           grey300: AppColors.grey300,
           grey400: AppColors.grey400,

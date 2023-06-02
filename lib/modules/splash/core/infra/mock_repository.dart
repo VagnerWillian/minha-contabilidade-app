@@ -9,11 +9,12 @@ class MockSplashRepository implements SplashRepository{
     return UserProfile(
       active: true,
       name: 'Usuario',
+      email: 'teste@teste.com',
       photo: '',
-      pushToken: '',
       uid: uid,
       cards: ['digio'],
-      isAdmin: true
+      isAdmin: true,
+      cpf: '123.456.789-10'
     );
   }
 }

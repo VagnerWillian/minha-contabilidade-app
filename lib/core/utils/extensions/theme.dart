@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
   final Color? successColor;
   final Color? red;
-  final Color? warningColor;
+  final Color? orange50;
   final Color? grey200;
   final Color? grey300;
   final Color? grey400;
@@ -18,7 +18,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
   CustomThemeColors({
     required this.successColor,
     required this.red,
-    required this.warningColor,
+    required this.orange50,
     required this.grey200,
     required this.grey500,
     required this.grey300,
@@ -51,7 +51,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     return CustomThemeColors(
       successColor: successColor,
       red: failureColor,
-      warningColor: warningColor,
+      orange50: warningColor,
       grey200: grey200,
       grey500: grey500,
       grey300: grey300,
@@ -74,7 +74,7 @@ class CustomThemeColors extends ThemeExtension<CustomThemeColors> {
     return CustomThemeColors(
       successColor: successColor,
       red: red,
-      warningColor: warningColor,
+      orange50: orange50,
       white: white,
       black: black,
       blackGrey: blackGrey,

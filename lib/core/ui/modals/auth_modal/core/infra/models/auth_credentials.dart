@@ -17,7 +17,8 @@ class AuthCredentials implements AuthCredentialsEntity {
   AuthCredentials({
     required this.uid,
     required this.token,
-    required this.isVerified
+    required this.isVerified,
+    this.error = '',
   });
 
   AuthCredentials.failure({String? message}) {

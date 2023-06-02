@@ -52,4 +52,9 @@ extension StringExtension on String {
       return 0.0;
     }
   }
+
+  String removeParentheses() {
+    String str = replaceAll('(', '').replaceAll(')', '');
+    return str;
+  }
 }

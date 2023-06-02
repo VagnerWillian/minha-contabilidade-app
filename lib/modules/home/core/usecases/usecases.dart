@@ -6,3 +6,4 @@ export 'delete_transaction_usecase.dart';
 export 'create_transaction_usecase.dart';
 export 'update_transaction_usecase.dart';
 export 'get_all_transactions_usecase.dart';
+export 'get_all_users_usecase.dart';

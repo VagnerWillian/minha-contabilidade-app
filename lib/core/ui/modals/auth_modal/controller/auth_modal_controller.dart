@@ -12,7 +12,6 @@ import '../ui/models/models.dart';
 
 class AuthModalController extends GetxController with MessagesMixin {
   final LoginWithEmailAndPassUseCaseInterface _loginWithEmailAndPassUseCase;
-  final LoginWithPhoneAndPassUseCaseInterface _loginWithPhoneAndPassUseCase;
   final SendEmailConfirmationUseCaseInterface _sendEmailConfirmationUseCase;
   final SignOutUseCaseInterface _signOutUseCase;
   final GetUserDataUseCaseInterface _getUserDataUseCase;
@@ -21,7 +20,6 @@ class AuthModalController extends GetxController with MessagesMixin {
 
   AuthModalController(
     this._loginWithEmailAndPassUseCase,
-    this._loginWithPhoneAndPassUseCase,
     this._sendEmailConfirmationUseCase,
     this._signOutUseCase,
     this._getUserDataUseCase,
@@ -61,11 +59,11 @@ class AuthModalController extends GetxController with MessagesMixin {
     if (authCredentials.uid.isNotEmpty) {
       _userAuthController.setLoggedCredentials(authCredentials);
       if (authCredentials.isVerified) {
-          bool confirmBiometric = await _confirmBiometric(
-            rememberDataFields.value,
-            withBiometrics,
-          );
-          if (confirmBiometric) completeLogin(useBiometry: withBiometrics);
+        bool confirmBiometric = await _confirmBiometric(
+          rememberDataFields.value,
+          withBiometrics,
+        );
+        if (confirmBiometric) completeLogin(useBiometry: withBiometrics);
       } else {
         step(AuthStep.verify);
       }
@@ -99,8 +97,7 @@ class AuthModalController extends GetxController with MessagesMixin {
   }
 
   Future<bool> _confirmBiometric(bool remember, bool useBiometrics) async {
-    if (!useBiometrics &&
-        !kIsWeb) {
+    if (!useBiometrics && !kIsWeb) {
       bool hasBiometrics = await _localAuthService.hasBiometrics();
       if (hasBiometrics) step(AuthStep.biometrics);
       return !hasBiometrics;
@@ -136,21 +133,8 @@ class AuthModalController extends GetxController with MessagesMixin {
 
   Future<AuthCredentialsEntity> _getCredentials() async {
     late AuthCredentialsEntity credentials;
-    if (emailOrPhoneField.value.isAEmail) {
-      credentials = await loginWithEmailAndPassword();
-    } else if (emailOrPhoneField.value.isAPhoneNumber) {
-      credentials = await _loginWithPhoneAndPassword();
-    }
+    credentials = await loginWithEmailAndPassword();
     return credentials;
-  }
-
-
-  Future<AuthCredentialsEntity> _loginWithPhoneAndPassword() async {
-    await _loginWithPhoneAndPassUseCase(
-      emailOrPhoneField.value,
-      password.value,
-    );
-    return AuthCredentials.failure();
   }
 
   Future<void> _saveSession(String uid) async {
@@ -191,9 +175,9 @@ class AuthModalController extends GetxController with MessagesMixin {
     }
   }
 
-  Future<void> authenticateWithBiometrics()async{
+  Future<void> authenticateWithBiometrics() async {
     bool validBiometry = await _localAuthService.authenticate();
-    if(validBiometry) login(withBiometrics: true);
+    if (validBiometry) login(withBiometrics: true);
   }
 
   Future<void> openMain() async {
